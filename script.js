@@ -1,0 +1,514 @@
+$(document).ready(function() {
+    const SAVED_DIAGRAMS_KEY = "savedDiagrams";
+
+    const scales = {
+        //major modes
+        "Ionian": ["R", "2", "3", "4", "5", "6", "7"],
+        "Dorian": ["R", "2", "b3", "4", "5", "6", "b7"],
+        "Phrygian": ["R", "b2", "b3", "4", "5", "b6", "b7"],
+        "Lydian": ["R", "2", "3", "#4", "5", "6", "7"],
+        "Mixolydian": ["R", "2", "3", "4", "5", "6", "b7"],
+        "Aeolian": ["R", "2", "b3", "4", "5", "b6", "b7"],
+        "Locrian": ["R", "b2", "b3", "4", "b5", "b6", "b7"],
+        //melodic minor modes
+        "Melodic Minor": ["R", "2", "b3", "4", "5", "6", "7"],
+        "Dorian b2": ["R", "b2", "b3", "4", "5", "6", "b7"],
+        "Lydian #5": ["R", "2", "3", "#4", "#5", "6", "7"],
+        "Lydian b7": ["R", "2", "3", "#4", "5", "6", "b7"],
+        "Mixolydian b6": ["R", "2", "3", "4", "5", "b6", "b7"],
+        "Locrian Nat2": ["R", "2", "b3", "4", "b5", "b6", "b7"],
+        "Altered": ["R", "b2", "#2", "3", "b5", "#5", "b7"],
+        //harmonic minor modes
+        "Harmonic Minor": ["R", "2", "b3", "4", "5", "b6", "7"],
+        "Locrian #6": ["R", "b2", "b3", "4", "b5", "6", "b7"],
+        "Ionian #5": ["R", "2", "3", "#4", "#5", "6", "7"],
+        "Dorian #4": ["R", "2", "b3", "#4", "5", "6", "b7"],
+        "Phrygian Dominant": ["R", "b2", "3", "4", "5", "b6", "b7"],
+        "Lydian #2": ["R", "#2", "3", "#4", "5", "6", "7"],
+        "Super Locrian": ["R", "b2", "b3", "b4", "b5", "b6", "b7"],
+        //harmonic major modes
+        "Harmonic Major": ["R", "2", "3", "4", "5", "b6", "7"],
+        "Dorian b5": ["R", "2", "b3", "4", "b5", "6", "b7"],
+        "Phrygian b4": ["R", "b2", "b3", "b4", "5", "b6", "b7"],
+        "Lydian b3": ["R", "2", "b3", "#4", "5", "6", "7"],
+        "Mixolydian b2": ["R", "b2", "3", "4", "5", "6", "b7"],
+        "Lydian #6": ["R", "2", "3", "#4", "5", "#6", "7"],
+        "Locrian bb7": ["R", "b2", "b3", "4", "b5", "b6", "bb7"],
+    };
+
+    const chart = new svguitar.SVGuitarChord("#result");
+
+    function generateDiagram(settings, chord) {
+        const stringSets = calculateStringSets(chord);
+        const resultContainer = $("#result");
+        resultContainer.empty();
+
+        console.log('Generating diagrams for string sets:', stringSets); // Log the string sets being processed
+
+        stringSets.forEach((set, index) => {
+            const diagramContainer = $("<div>").attr("id", `result-${index}`).css("display", "inline-block");
+            resultContainer.append(diagramContainer);
+
+            // Calculate the highest fret used in the chord
+            const highestFret = Math.max(...set.fingers.filter(f => f[1] !== 'x').map(f => f[1]), 5);
+
+            // Adjust the settings to set the number of frets based on the highest fret
+            const adjustedSettings = { ...settings, frets: Math.max(highestFret, 5) };
+
+            const chart = new svguitar.SVGuitarChord(`#result-${index}`);
+            chart.configure(adjustedSettings).chord(set).draw();
+
+            console.log(`Generated diagram for set ${index}:`, set); // Log each generated diagram
+        });
+    }
+
+    function determineScales(degrees) {
+        const possibleScales = [];
+        for (const [scale, scaleDegrees] of Object.entries(scales)) {
+            if (degrees.every(degree => scaleDegrees.includes(degree))) {
+                possibleScales.push(scale);
+            }
+        }
+        return possibleScales.length > 0 ? possibleScales : ["Unknown"];
+    }
+
+    function calculateStringSets(chord) {
+        const tuningOffsets = [0, 5, 9, 14, 19, 24]; // Cumulative intervals between strings in semitones (EADGBE tuning)
+        const maxString = Math.max(...chord.fingers.filter(f => f[1] !== 'x').map(f => f[0]));
+        const minString = Math.min(...chord.fingers.filter(f => f[1] !== 'x').map(f => f[0]));
+        const stringRange = maxString - minString + 1;
+        const noteCount = chord.fingers.filter(f => f[1] !== 'x').length;
+        console.log('String range:', stringRange); // Print the string range for debugging
+        const possibleSets = [];
+
+        // Generate string sets by shifting down
+        for (let i = 0; i <= 6 - stringRange; i++) {
+            const newSet = chord.fingers.map(f => {
+                const newString = f[0] + i;
+                if (newString > 6 || newString < 1) {
+                    return null;
+                }
+                let fretOffset = tuningOffsets[newString - 1] - tuningOffsets[f[0] - 1];
+                // Adjust fret offset only when crossing from 2nd to 3rd string or vice versa
+                if ((f[0] === 2 && newString === 3) || (f[0] === 3 && newString === 2)) {
+                    fretOffset += (f[0] === 2 && newString === 3) ? 0 : 1;
+                }
+                const newFret = f[1] === 'x' ? 'x' : f[1] + fretOffset;
+                return [newString, newFret, f[2]];
+            }).filter(f => f !== null);
+
+            // Ensure no zero frets and shift all fingers so that the lowest fret is on the 1st fret
+            const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
+            const adjustedSet = newSet.map(f => {
+                if (f[1] === 'x') return f;
+                return [f[0], f[1] - minFret + 1, f[2]];
+            });
+
+            // Mark any unused strings as 'x'
+            for (let j = 1; j <= 6; j++) {
+                if (!adjustedSet.some(f => f[0] === j)) {
+                    adjustedSet.push([j, 'x']);
+                }
+            }
+
+            // Ensure the new set has at least the same number of notes as the original chord
+            if (adjustedSet.filter(f => f[1] !== 'x').length >= noteCount) {
+                possibleSets.push({ fingers: adjustedSet, barres: chord.barres });
+            }
+        }
+
+        // Generate string sets by shifting up
+        for (let i = 1; i <= 6 - stringRange; i++) {
+            const newSet = chord.fingers.map(f => {
+                const newString = f[0] - i;
+                if (newString > 6 || newString < 1) {
+                    return null;
+                }
+                let fretOffset = tuningOffsets[newString - 1] - tuningOffsets[f[0] - 1];
+                // Adjust fret offset only when crossing from 2nd to 3rd string or vice versa
+                if ((f[0] === 2 && newString === 3) || (f[0] === 3 && newString === 2)) {
+                    fretOffset += (f[0] === 2 && newString === 3) ? 0 : 0;
+                }
+                const newFret = f[1] === 'x' ? 'x' : f[1] + fretOffset;
+                return [newString, newFret, f[2]];
+            }).filter(f => f !== null);
+
+            // Ensure no zero frets and shift all fingers so that the lowest fret is on the 1st fret
+            const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
+            const adjustedSet = newSet.map(f => {
+                if (f[1] === 'x') return f;
+                return [f[0], f[1] - minFret + 1, f[2]];
+            });
+
+            // Mark any unused strings as 'x'
+            for (let j = 1; j <= 6; j++) {
+                if (!adjustedSet.some(f => f[0] === j)) {
+                    adjustedSet.push([j, 'x']);
+                }
+            }
+
+            // Ensure the new set has at least the same number of notes as the original chord
+            if (adjustedSet.filter(f => f[1] !== 'x').length >= noteCount) {
+                possibleSets.push({ fingers: adjustedSet, barres: chord.barres });
+            }
+        }
+
+        // Print the strings that the possible string sets will be on
+        possibleSets.forEach((set, index) => {
+            const strings = set.fingers.map(f => f[0]).sort();
+            console.log(`String set ${index + 1}:`, strings);
+        });
+
+        console.log('Possible string sets:', possibleSets); // Log the possible string sets
+        return possibleSets;
+    }
+
+    function saveDiagram(settings, chord) {
+        const degrees = chord.fingers.map(finger => finger[2]?.text).filter(text => text);
+        const scales = determineScales(degrees);
+        const melody = chord.fingers.filter(finger => finger[1] !== 'x').sort((a, b) => a[0] - b[0])[0]?.[2]?.text || 'Unknown';
+
+        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+        savedDiagrams.push({ settings, chord, scales, melody });
+        localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(savedDiagrams));
+        displaySavedDiagrams();
+    }
+
+    function displaySavedDiagrams() {
+        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+        const savedDiagramsContainer = $("#saved-diagrams");
+        savedDiagramsContainer.empty();
+        const melodyOrder = ["", "R", "b2", "2", "#2", "b3", "3", "4", "#4", "b5", "5", "#5", "b6", "6", "b7", "7"];
+
+        // Sort diagrams by melody note according to the specified order
+        savedDiagrams.sort((a, b) => {
+            const melodyA = a.melody || '';
+            const melodyB = b.melody || '';
+            return melodyOrder.indexOf(melodyA) - melodyOrder.indexOf(melodyB);
+        });
+
+        savedDiagrams.forEach((diagram, index) => {
+            const scalesText = diagram.scales ? diagram.scales.join(", ") : "Unknown";
+            const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
+            const diagramElement = $(`
+                <div>
+                    <span>Diagram ${index + 1}: ${diagram.settings.title} (${scalesText}) ${melodyText}</span>
+                    <button class="delete-diagram" data-index="${index}">Delete</button>
+                </div>
+            `);
+            diagramElement.css("cursor", "pointer");
+            diagramElement.find("span").click(function() {
+                generateDiagram(diagram.settings, diagram.chord);
+            });
+            savedDiagramsContainer.append(diagramElement);
+        });
+    }
+
+    function deleteDiagram(index) {
+        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+        savedDiagrams.splice(index, 1);
+        localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(savedDiagrams));
+        displaySavedDiagrams();
+    }
+
+    function populateDropdowns() {
+        //fret numbers
+        const dropdowns = ['#string1', '#string2', '#string3', '#string4', '#string5', '#string6'];
+        dropdowns.forEach(id => {
+            const dropdown = $(id);
+            dropdown.empty();
+            dropdown.append('<option value="x">x</option>');
+            for (let i = 0; i <= 9; i++) {
+                dropdown.append(`<option value="${i}">${i}</option>`);
+            }
+        });
+        //scale degrees options
+        const textOptions = [
+            { value: "", text: "None" },
+            { value: "R", text: "R" },
+            { value: "b2", text: "b2" },
+            { value: "2", text: "2" },
+            { value: "#2", text: "#2" },
+            { value: "b3", text: "b3" },
+            { value: "3", text: "3" },
+            { value: "4", text: "4" },
+            { value: "#4", text: "#4" },
+            { value: "b5", text: "b5" },
+            { value: "5", text: "5" },
+            { value: "#5", text: "#5" },
+            { value: "b6", text: "b6" },
+            { value: "6", text: "6" },
+            { value: "b7", text: "b7" },
+            { value: "7", text: "7" }
+        ];
+        //create dropdowns for each string
+        const textDropdowns = ['#string1-text', '#string2-text', '#string3-text', '#string4-text', '#string5-text', '#string6-text'];
+        textDropdowns.forEach(id => {
+            const dropdown = $(id);
+            dropdown.empty();
+            textOptions.forEach(option => {
+                dropdown.append(`<option value="${option.value}">${option.text}</option>`);
+            });
+        });
+    }
+
+    function retroactivelyAddMelody() {
+        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+        let updated = false;
+        savedDiagrams.forEach(diagram => {
+            if (!diagram.melody) {
+                const melody = diagram.chord.fingers.filter(finger => finger[1] !== 'x').sort((a, b) => a[0] - b[0])[0]?.[2]?.text || 'Unknown';
+                diagram.melody = melody;
+                updated = true;
+            }
+        });
+        if (updated) {
+            localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(savedDiagrams));
+        }
+    }
+
+    function createScaleCheckboxes() {
+        const scaleCategories = {
+            "major-modes": ["Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian","Locrian"],
+            "melodic-minor-modes": ["Melodic Minor", "Dorian b2", "Lydian #5", "Lydian b7", "Mixolydian b6", "Locrian Nat2", "Altered"],
+            "harmonic-minor-modes": ["Harmonic Minor", "Locrian #6", "Ionian #5", "Dorian #4", "Phrygian Dominant", "Lydian #2", "Super Locrian"],
+            "harmonic-major-modes": ["Harmonic Major", "Dorian b5", "Phrygian b4", "Lydian b3", "Mixolydian b2", "Lydian #6", "Locrian bb7"]
+        };
+
+        for (const [category, scales] of Object.entries(scaleCategories)) {
+            const container = $(`#${category}`);
+            scales.forEach(scale => {
+                const checkbox = $(`
+                    <div>
+                        <input type="checkbox" id="${scale}" name="scale" value="${scale}">
+                        <label for="${scale}">${scale}</label>
+                    </div>
+                `);
+                container.append(checkbox);
+            });
+        }
+
+        // Add event listeners to checkboxes
+        $("input[name='scale']").change(function() {
+            filterDiagrams();
+        });
+    }
+
+    function filterDiagrams() {
+        const selectedScales = $("input[name='scale']:checked").map(function() {
+            return this.value;
+        }).get();
+
+        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+        const filteredDiagrams = savedDiagrams.filter(diagram => {
+            return diagram.scales.some(scale => selectedScales.includes(scale));
+        });
+
+        const melodyOrder = ["", "R", "b2", "2", "#2", "b3", "3", "4", "#4", "b5", "5", "#5", "b6", "6", "b7", "7"];
+        filteredDiagrams.sort((a, b) => {
+            const melodyA = a.melody || '';
+            const melodyB = b.melody || '';
+            return melodyOrder.indexOf(melodyA) - melodyOrder.indexOf(melodyB);
+        });
+
+        const savedDiagramsContainer = $("#saved-diagrams");
+        savedDiagramsContainer.empty();
+        filteredDiagrams.forEach((diagram, index) => {
+            const scalesText = diagram.scales ? diagram.scales.join(", ") : "Unknown";
+            const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
+            const diagramElement = $(`
+                <div>
+                    <span>Diagram ${index + 1}: ${diagram.settings.title} (${scalesText}) ${melodyText}</span>
+                    <button class="delete-diagram" data-index="${index}">Delete</button>
+                </div>
+            `);
+            diagramElement.css("cursor", "pointer");
+            diagramElement.find("span").click(function() {
+                generateDiagram(diagram.settings, diagram.chord);
+            });
+            savedDiagramsContainer.append(diagramElement);
+        });
+    }
+
+    // generate diagram call
+    $("#settings-form").submit(function(event) {
+        event.preventDefault();
+
+        const title = $("#title").val();
+        const strings = $("#strings").val();
+        const frets = $("#frets").val();
+        const style = $("#style").val();
+        const color = $("#color").val();
+        const orientation = $("#orientation").val();
+
+        // Parse fingers input
+        const fingers = [
+            [1, $("#string1").val(), $("#string1-text").val()],
+            [2, $("#string2").val(), $("#string2-text").val()],
+            [3, $("#string3").val(), $("#string3-text").val()],
+            [4, $("#string4").val(), $("#string4-text").val()],
+            [5, $("#string5").val(), $("#string5-text").val()],
+            [6, $("#string6").val(), $("#string6-text").val()]
+        ].map(([string, fret, text]) => {
+            const finger = [string, fret === 'x' ? fret : parseInt(fret)];
+            if (text) {
+                finger.push({ text });
+            }
+            return finger;
+        });
+
+        // Parse barres input
+        const barresInput = $("#barres").val() || "";
+        const barres = barresInput.split(';').map(barre => {
+            const [fromString, toString, fret] = barre.split(',');
+            if (fromString && toString && fret) {
+                return { fromString: parseInt(fromString), toString: parseInt(toString), fret: parseInt(fret) };
+            }
+            return null;
+        }).filter(barre => barre !== null);
+
+        const settings = {
+            title,
+            strings,
+            frets,
+            style,
+            color,
+            orientation
+        };
+
+        const chord = {
+            fingers,
+            barres
+        };
+
+        console.log('Form submission settings:', settings); // Log the settings
+        console.log('Form submission chord:', chord); // Log the chord
+
+        generateDiagram(settings, chord);
+        saveDiagram(settings, chord);
+    });
+
+    displaySavedDiagrams();
+    populateDropdowns();
+    retroactivelyAddMelody();
+    createScaleCheckboxes();
+
+    $("#clear-saved-diagrams").click(function() {
+        const confirmation = confirm('Are you sure you want to clear all saved diagrams?');
+        if (confirmation) {
+            localStorage.removeItem(SAVED_DIAGRAMS_KEY);
+            displaySavedDiagrams();
+        }
+    });
+
+    $("#saved-diagrams").on("click", ".delete-diagram", function() {
+        const index = $(this).data("index");
+        deleteDiagram(index);
+    });
+
+    //download svg
+    document.getElementById('download-svg').addEventListener('click', function() {
+        const svgElement = document.querySelector('#result svg');
+        if (svgElement) {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const svgUrl = URL.createObjectURL(svgBlob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = svgUrl;
+            downloadLink.download = 'chord-diagram.svg';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } else {
+            alert('No SVG diagram to download.');
+        }
+    });
+    //download png
+    document.getElementById('download-png').addEventListener('click', function() {
+        const svgElement = document.querySelector('#result svg');
+        if (svgElement) {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const pngUrl = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngUrl;
+                downloadLink.download = 'chord-diagram.png';
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+        } else {
+            alert('No SVG diagram to download.');
+        }
+    });
+    //download json
+    document.getElementById('download-saved-diagrams').addEventListener('click', function() {
+        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+        if (savedDiagrams.length > 0) {
+            const fileName = prompt('Enter file name:', 'saved-diagrams.json');
+            if (!fileName) return; // User canceled the prompt
+            
+            const jsonBlob = new Blob([JSON.stringify(savedDiagrams, null, 2)], { type: 'application/json' });
+            const jsonUrl = URL.createObjectURL(jsonBlob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = jsonUrl;
+            downloadLink.download = fileName.endsWith('.json') ? fileName : `${fileName}.json`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } else {
+            alert('No saved diagrams to download.');
+        }
+    });
+    //load json
+    document.getElementById('load-saved-diagrams').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                try {
+                    const savedDiagrams = JSON.parse(content);
+                    localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(savedDiagrams));
+                    displaySavedDiagrams();
+                } catch (error) {
+                    alert('Invalid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // Initial settings and chord
+    const initialSettings = {
+        title: 'F',
+        color: '#000000',
+        strings: 6,
+        frets: 5,
+        style: 'normal',
+        orientation: 'horizontal'
+    };
+
+    const initialChord = {
+        fingers: [
+            [1, 'x'],
+            [2, 1],
+            [3, 2],
+            [4, 3],
+            [5, 'x'],
+            [6, 'x']
+        ],
+        barres: [
+        ]
+    };
+
+    // Initialize the chord diagram with the initial settings and chord
+    generateDiagram(initialSettings, initialChord);
+});

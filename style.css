@@ -1,0 +1,10 @@
+#result svg {
+    width: 300px;
+    height: auto;
+}
+#saved-diagrams div {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin-bottom: 5px;
+}

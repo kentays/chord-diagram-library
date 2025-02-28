@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chord Diagram Library</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+</head>
+<body>
+
+    <h1>Chord Diagram Generator</h1>
+
+    <form id="settings-form">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" value="Chord Name"><br><br>
+
+        <label for="strings">Strings:</label>
+        <input type="number" id="strings" name="strings" value="6" readonly>
+
+        <label for="frets">Frets:</label>
+        <input type="number" id="frets" name="frets" value="5"><br><br>
+
+        <label for="orientation">Orientation:</label>
+        <select id="orientation" name="orientation">
+            <option value="horizontal" selected="selected">Horizontal</option>
+            <option value="vertical">Vertical</option>
+        </select><br><br>
+
+        <label for="fingers">Fingers:</label><br>
+        <label for="string1">String 1:</label>
+        <select id="string1" name="string1"></select>
+        <select id="string1-text" name="string1-text"></select><br>
+        <label for="string2">String 2:</label>
+        <select id="string2" name="string2"></select>
+        <select id="string2-text" name="string2-text"></select><br>
+        <label for="string3">String 3:</label>
+        <select id="string3" name="string3"></select>
+        <select id="string3-text" name="string3-text"></select><br>
+        <label for="string4">String 4:</label>
+        <select id="string4" name="string4"></select>
+        <select id="string4-text" name="string4-text"></select><br>
+        <label for="string5">String 5:</label>
+        <select id="string5" name="string5"></select>
+        <select id="string5-text" name="string5-text"></select><br>
+        <label for="string6">String 6:</label>
+        <select id="string6" name="string6"></select>
+        <select id="string6-text" name="string6-text"></select><br><br>
+
+        <button type="submit">Generate Diagram</button>
+    </form>
+
+    <br>
+
+    <div id="result"></div>  
+
+    <button id="download-svg">Download SVG</button>
+    <button id="download-png">Download PNG</button>
+    
+    <div id="scale-filters" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div id="major-modes">
+            <h3>Major</h3>
+        </div>
+        <div id="melodic-minor-modes">
+            <h3>Melodic Minor</h3>
+        </div>
+        <div id="harmonic-minor-modes">
+            <h3>Harmonic Minor</h3>
+        </div>
+        <div id="harmonic-major-modes">
+            <h3>Harmonic Major</h3>
+        </div>
+    </div>
+    <button id="clear-saved-diagrams">Clear Saved Diagrams</button>
+    <button id="download-saved-diagrams">Download Saved Diagrams</button>
+    <input type="file" id="load-saved-diagrams" accept=".json"><br><br>
+    <div id="saved-diagrams"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
