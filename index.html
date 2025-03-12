@@ -5,30 +5,21 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
 
     <h1>Chord Diagram Generator</h1>
 
     <div class="container">
+
+        <!--diagram generation column-->
         <div class="column" id="diagram-generation">
+            <h3>Generate Chord Diagram</h3>
             <form id="settings-form">
                 <label for="title">Title:</label>
-                <input type="text" id="title" name="title" value="Chord Name"><br><br>
-                <!--
-                <label for="strings">Strings:</label>
-                <input type="number" id="strings" name="strings" value="6" readonly>
-
-                <label for="frets">Frets:</label>
-                <input type="number" id="frets" name="frets" value="5"><br><br>
-
-                <label for="orientation">Orientation:</label>
-                <select id="orientation" name="orientation">
-                    <option value="horizontal" selected="selected">Horizontal</option>
-                    <option value="vertical">Vertical</option>
-                </select><br><br>
-                -->
-                <label for="fingers">Fingers:</label><br>
+                <input type="text" id="title" name="title" value="Chord Name">
                 <label for="string1">String 1:</label>
                 <select id="string1" name="string1"></select>
                 <select id="string1-text" name="string1-text"></select><br>
@@ -53,35 +44,44 @@
         </div>
 
         <div class="column" id="diagram-output">
+            <h3 id="chord-name">Chord Diagram</h3>
             <div id="result"></div>  
-            <button id="download-svg">Download SVG</button>
-            <button id="download-png">Download PNG</button>
+            <button id="download-all-diagrams">Download All Diagrams</button>
         </div>
 
         <div class="column" id="scale-filters">
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                <div id="major-modes">
-                    <h3>Major</h3>
+            <div class="filter-section">
+                <h3 class="filter-header">Major</h3>
+                <div class="filter-content" id="major-modes">
+                    <!-- Major modes content -->
                 </div>
-                <div id="melodic-minor-modes">
-                    <h3>Melodic Minor</h3>
+            </div>
+            <div class="filter-section">
+                <h3 class="filter-header">Melodic Minor</h3>
+                <div class="filter-content" id="melodic-minor-modes">
+                    <!-- Melodic Minor modes content -->
                 </div>
-                <!--
-                <div id="harmonic-minor-modes">
-                    <h3>Harmonic Minor</h3>
+            </div>
+            <div class="filter-section">
+                <h3 class="filter-header">Harmonic Minor</h3>
+                <div class="filter-content" id="harmonic-minor-modes">
+                    <!-- Harmonic Minor modes content -->
                 </div>
-                <div id="harmonic-major-modes">
-                    <h3>Harmonic Major</h3>
+            </div>
+            <div class="filter-section">
+                <h3 class="filter-header">Harmonic Major</h3>
+                <div class="filter-content" id="harmonic-major-modes">
+                    <!-- Harmonic Major modes content -->
                 </div>
-                -->
             </div>
         </div>
 
         <div class="column" id="saved-diagrams-container">
+            <h3>Saved Diagrams</h3>
+            <div id="saved-diagrams"></div>
             <button id="clear-saved-diagrams">Clear Saved Diagrams</button>
             <button id="download-saved-diagrams">Download Saved Diagrams</button>
             <input type="file" id="load-saved-diagrams" accept=".json"><br><br>
-            <div id="saved-diagrams"></div>
         </div>
     </div>
 

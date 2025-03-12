@@ -43,6 +43,9 @@ $(document).ready(function() {
         const resultContainer = $("#result");
         resultContainer.empty();
 
+        // Set the chord name at the top of the diagram column
+        $("#chord-name").text(settings.title);
+
         console.log('Generating diagrams for string sets:', stringSets); // Log the string sets being processed
 
         stringSets.forEach((set, index) => {
@@ -53,13 +56,15 @@ $(document).ready(function() {
             const highestFret = Math.max(...set.fingers.filter(f => f[1] !== 'x').map(f => f[1]), 5);
 
             // Adjust the settings to set the number of frets based on the highest fret
-            const adjustedSettings = { ...settings, frets: Math.max(highestFret, 5) };
+            const adjustedSettings = { ...settings, frets: Math.max(highestFret, 5), title: '', orientation: 'horizontal' };
 
             const chart = new svguitar.SVGuitarChord(`#result-${index}`);
             chart.configure(adjustedSettings).chord(set).draw();
 
             console.log(`Generated diagram for set ${index}:`, set); // Log each generated diagram
         });
+
+        addDownloadButtons(); // Add download buttons after generating diagrams
     }
 
     function determineScales(degrees) {
@@ -197,7 +202,7 @@ $(document).ready(function() {
             const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
             const diagramElement = $(`
                 <div id="diagram-${sortedIndex}">
-                    <span>Diagram ${sortedIndex + 1}: ${diagram.settings.title} (${scalesText}) ${melodyText}</span>
+                    <span>${diagram.melody} - ${diagram.settings.title}</span>
                     <button class="delete-diagram" data-original-index="${diagram.originalIndex}">Delete</button>
                 </div>
             `);
@@ -278,7 +283,7 @@ $(document).ready(function() {
 
     function createScaleCheckboxes() {
         const scaleCategories = {
-            "major-modes": ["Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian","Locrian"],
+            "major-modes": ["Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian", "Locrian"],
             "melodic-minor-modes": ["Melodic Minor", "Dorian b2", "Lydian #5", "Lydian b7", "Mixolydian b6", "Locrian Nat2", "Altered"],
             "harmonic-minor-modes": ["Harmonic Minor", "Locrian #6", "Ionian #5", "Dorian #4", "Phrygian Dominant", "Lydian #2", "Super Locrian"],
             "harmonic-major-modes": ["Harmonic Major", "Dorian b5", "Phrygian b4", "Lydian b3", "Mixolydian b2", "Lydian #6", "Locrian bb7"]
@@ -288,10 +293,10 @@ $(document).ready(function() {
             const container = $(`#${category}`);
             scales.forEach(scale => {
                 const checkbox = $(`
-                    <div>
-                        <input type="checkbox" id="${scale}" name="scale" value="${scale}">
-                        <label for="${scale}">${scale}</label>
-                    </div>
+                    <label class="mode-option">
+                        <input type="checkbox" name="scale" value="${scale}">
+                        ${scale}
+                    </label>
                 `);
                 container.append(checkbox);
             });
@@ -299,6 +304,7 @@ $(document).ready(function() {
 
         // Add event listeners to checkboxes
         $("input[name='scale']").change(function() {
+            $(this).parent().toggleClass("selected", this.checked);
             filterDiagrams();
         });
     }
@@ -326,14 +332,18 @@ $(document).ready(function() {
             const scalesText = diagram.scales ? diagram.scales.join(", ") : "Unknown";
             const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
             const diagramElement = $(`
-                <div>
-                    <span>Diagram ${index + 1}: ${diagram.settings.title} (${scalesText}) ${melodyText}</span>
-                    <button class="delete-diagram" data-index="${index}">Delete</button>
+                <div id="diagram-${index}">
+                    <span>${diagram.melody} - ${diagram.settings.title}</span>
+                    <button class="delete-diagram" data-original-index="${diagram.originalIndex}">Delete</button>
                 </div>
             `);
             diagramElement.css("cursor", "pointer");
             diagramElement.find("span").click(function() {
                 generateDiagram(diagram.settings, diagram.chord);
+            });
+            diagramElement.find(".delete-diagram").click(function() {
+                const originalIndex = $(this).data("original-index");
+                deleteDiagram(originalIndex);
             });
             savedDiagramsContainer.append(diagramElement);
         });
@@ -415,48 +425,6 @@ $(document).ready(function() {
         deleteDiagram(index);
     });
 
-    //download svg
-    document.getElementById('download-svg').addEventListener('click', function() {
-        const svgElement = document.querySelector('#result svg');
-        if (svgElement) {
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            const svgUrl = URL.createObjectURL(svgBlob);
-            const downloadLink = document.createElement('a');
-            downloadLink.href = svgUrl;
-            downloadLink.download = 'chord-diagram.svg';
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-        } else {
-            alert('No SVG diagram to download.');
-        }
-    });
-    //download png
-    document.getElementById('download-png').addEventListener('click', function() {
-        const svgElement = document.querySelector('#result svg');
-        if (svgElement) {
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const pngUrl = canvas.toDataURL('image/png');
-                const downloadLink = document.createElement('a');
-                downloadLink.href = pngUrl;
-                downloadLink.download = 'chord-diagram.png';
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-            };
-            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-        } else {
-            alert('No SVG diagram to download.');
-        }
-    });
     //download json
     document.getElementById('download-saved-diagrams').addEventListener('click', function() {
         const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
@@ -497,7 +465,7 @@ $(document).ready(function() {
 
     // Initial settings and chord
     const initialSettings = {
-        title: 'F',
+        title: 'Major Triad',
         color: '#000000',
         strings: 6,
         frets: 5,
@@ -520,4 +488,78 @@ $(document).ready(function() {
 
     // Initialize the chord diagram with the initial settings and chord
     generateDiagram(initialSettings, initialChord);
+
+    // Make filter sections collapsible
+    $(".filter-header").click(function() {
+        $(this).next(".filter-content").slideToggle();
+    });
 });
+
+// Function to download all diagrams as SVG and PNG in a zip file
+function downloadAllDiagrams() {
+    const zip = new JSZip();
+    const svgFolder = zip.folder("SVGs");
+    const pngFolder = zip.folder("PNGs");
+
+    $("#result > div").each(function(index, element) {
+        const svgElement = $(element).find("svg")[0];
+        if (svgElement) {
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            svgFolder.file(`chord-diagram-set-${index + 1}.svg`, svgBlob);
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(function(blob) {
+                    pngFolder.file(`chord-diagram-set-${index + 1}.png`, blob);
+                    if (index === $("#result > div").length - 1) {
+                        zip.generateAsync({ type: "blob" }).then(function(content) {
+                            saveAs(content, "chord-diagrams.zip");
+                        });
+                    }
+                });
+            };
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+        }
+    });
+}
+
+// Add event listener for the download all diagrams button
+document.getElementById('download-all-diagrams').addEventListener('click', downloadAllDiagrams);
+
+// Add a separate download PNG button under each diagram
+function addDownloadButtons() {
+    $("#result > div").each(function(index, element) {
+        const downloadPngButton = $('<button>Download PNG</button>');
+        downloadPngButton.on('click', function() {
+            const svgElement = $(element).find("svg")[0];
+            if (svgElement) {
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    const pngUrl = canvas.toDataURL('image/png');
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = pngUrl;
+                    downloadLink.download = `chord-diagram-set-${index + 1}.png`;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                };
+                img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+            } else {
+                alert('No SVG diagram to download.');
+            }
+        });
+        $(element).append(downloadPngButton);
+    });
+}

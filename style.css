@@ -29,8 +29,9 @@ h1 {
     flex-wrap: wrap;
     justify-content: space-around;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     margin-top: 20px;
+    gap: 20px; /* Add space between columns */
 }
 
 .column {
@@ -94,24 +95,50 @@ button:hover {
 #scale-filters {
     margin-top: 20px;
     width: 100%;
-    max-width: 600px;
+    max-width: 200px;
+    display: flex;
+    flex-direction: column; /* Stack filter sections vertically */
+    gap: 10px; /* Add space between filter sections */
 }
 
-#scale-filters div {
+.filter-section {
     background: #fff;
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    flex: 1;
-    text-align: center;
+}
+
+.filter-header {
+    cursor: pointer;
+    margin: 0;
+}
+
+.filter-content {
+    display: none; /* Hide content by default */
+    padding-top: 10px;
 }
 
 #saved-diagrams {
     margin-top: 20px;
     width: 100%;
-    max-width: 600px;
+    max-width: 300px;
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.mode-option {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.mode-option.selected {
+    border-color: green;
+    background-color: #e0ffe0;
 }
