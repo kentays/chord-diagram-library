@@ -180,6 +180,11 @@ $(document).ready(function() {
         savedDiagramsContainer.empty();
         const melodyOrder = ["", "R", "b2", "2", "#2", "b3", "3", "4", "#4", "b5", "5", "#5", "b6", "6", "b7", "7"];
 
+        // Add original index to each diagram for correct deletion
+        savedDiagrams.forEach((diagram, index) => {
+            diagram.originalIndex = index;
+        });
+
         // Sort diagrams by melody note according to the specified order
         savedDiagrams.sort((a, b) => {
             const melodyA = a.melody || '';
@@ -187,18 +192,22 @@ $(document).ready(function() {
             return melodyOrder.indexOf(melodyA) - melodyOrder.indexOf(melodyB);
         });
 
-        savedDiagrams.forEach((diagram, index) => {
+        savedDiagrams.forEach((diagram, sortedIndex) => {
             const scalesText = diagram.scales ? diagram.scales.join(", ") : "Unknown";
             const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
             const diagramElement = $(`
-                <div>
-                    <span>Diagram ${index + 1}: ${diagram.settings.title} (${scalesText}) ${melodyText}</span>
-                    <button class="delete-diagram" data-index="${index}">Delete</button>
+                <div id="diagram-${sortedIndex}">
+                    <span>Diagram ${sortedIndex + 1}: ${diagram.settings.title} (${scalesText}) ${melodyText}</span>
+                    <button class="delete-diagram" data-original-index="${diagram.originalIndex}">Delete</button>
                 </div>
             `);
             diagramElement.css("cursor", "pointer");
             diagramElement.find("span").click(function() {
                 generateDiagram(diagram.settings, diagram.chord);
+            });
+            diagramElement.find(".delete-diagram").click(function() {
+                const originalIndex = $(this).data("original-index");
+                deleteDiagram(originalIndex);
             });
             savedDiagramsContainer.append(diagramElement);
         });
