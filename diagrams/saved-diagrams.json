@@ -605,5 +605,492 @@
       "Phrygian b4"
     ],
     "melody": "5"
+  },
+  {
+    "settings": {
+      "title": "m add4 b9"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          "x"
+        ],
+        [
+          2,
+          2,
+          {
+            "text": "b3"
+          }
+        ],
+        [
+          3,
+          4,
+          {
+            "text": "b2"
+          }
+        ],
+        [
+          4,
+          1,
+          {
+            "text": "4"
+          }
+        ],
+        [
+          5,
+          1,
+          {
+            "text": "R"
+          }
+        ],
+        [
+          6,
+          "x"
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Phrygian",
+      "Locrian",
+      "Dorian b2",
+      "Locrian #6",
+      "Locrian bb7"
+    ],
+    "melody": "b3"
+  },
+  {
+    "settings": {
+      "title": "sus add b9"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          "x"
+        ],
+        [
+          2,
+          "x"
+        ],
+        [
+          3,
+          3,
+          {
+            "text": "4"
+          }
+        ],
+        [
+          4,
+          4,
+          {
+            "text": "b2"
+          }
+        ],
+        [
+          5,
+          3,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          6,
+          1,
+          {
+            "text": "R"
+          }
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Phrygian",
+      "Dorian b2",
+      "Phrygian Dominant",
+      "Mixolydian b2"
+    ],
+    "melody": "4"
+  },
+  {
+    "settings": {
+      "title": "13#11"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          1,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          2,
+          5,
+          {
+            "text": "#4"
+          }
+        ],
+        [
+          3,
+          1,
+          {
+            "text": "b7"
+          }
+        ],
+        [
+          4,
+          5,
+          {
+            "text": "6"
+          }
+        ],
+        [
+          5,
+          1,
+          {
+            "text": "R"
+          }
+        ],
+        [
+          6,
+          "x"
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Lydian b7",
+      "Dorian #4"
+    ],
+    "melody": "5"
+  },
+  {
+    "settings": {
+      "title": "m(add9)"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          "x"
+        ],
+        [
+          2,
+          3,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          3,
+          2,
+          {
+            "text": "2"
+          }
+        ],
+        [
+          4,
+          "x"
+        ],
+        [
+          5,
+          1,
+          {
+            "text": "b3"
+          }
+        ],
+        [
+          6,
+          3,
+          {
+            "text": "R"
+          }
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Dorian",
+      "Aeolian",
+      "Melodic Minor",
+      "Harmonic Minor",
+      "Dorian #4",
+      "Lydian b3"
+    ],
+    "melody": "5"
+  },
+  {
+    "settings": {
+      "title": "add9(#11)"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          "x"
+        ],
+        [
+          2,
+          1,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          3,
+          2,
+          {
+            "text": "3"
+          }
+        ],
+        [
+          4,
+          5,
+          {
+            "text": "2"
+          }
+        ],
+        [
+          5,
+          2,
+          {
+            "text": "#4"
+          }
+        ],
+        [
+          6,
+          1,
+          {
+            "text": "R"
+          }
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Lydian",
+      "Lydian b7",
+      "Lydian #6"
+    ],
+    "melody": "5"
+  },
+  {
+    "settings": {
+      "title": "add4"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          "x"
+        ],
+        [
+          2,
+          1,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          3,
+          1,
+          {
+            "text": "4"
+          }
+        ],
+        [
+          4,
+          5,
+          {
+            "text": "3"
+          }
+        ],
+        [
+          5,
+          6,
+          {
+            "text": "R"
+          }
+        ],
+        [
+          6,
+          "x"
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Ionian",
+      "Mixolydian",
+      "Mixolydian b6",
+      "Phrygian Dominant",
+      "Harmonic Major",
+      "Mixolydian b2"
+    ],
+    "melody": "5"
+  },
+  {
+    "settings": {
+      "title": "dimMaj7"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          1,
+          {
+            "text": "7"
+          }
+        ],
+        [
+          2,
+          1,
+          {
+            "text": "b5"
+          }
+        ],
+        [
+          3,
+          2,
+          {
+            "text": "b3"
+          }
+        ],
+        [
+          4,
+          "x"
+        ],
+        [
+          5,
+          "x"
+        ],
+        [
+          6,
+          2,
+          {
+            "text": "R"
+          }
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Unknown"
+    ],
+    "melody": "7"
+  },
+  {
+    "settings": {
+      "title": "7sus2"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          4,
+          {
+            "text": "b7"
+          }
+        ],
+        [
+          2,
+          1,
+          {
+            "text": "2"
+          }
+        ],
+        [
+          3,
+          "x"
+        ],
+        [
+          4,
+          3,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          5,
+          1,
+          {
+            "text": "R"
+          }
+        ],
+        [
+          6,
+          "x"
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Dorian",
+      "Mixolydian",
+      "Aeolian",
+      "Lydian b7",
+      "Mixolydian b6",
+      "Dorian #4"
+    ],
+    "melody": "b7"
+  },
+  {
+    "settings": {
+      "title": "Maj7sus2"
+    },
+    "chord": {
+      "fingers": [
+        [
+          1,
+          5,
+          {
+            "text": "7"
+          }
+        ],
+        [
+          2,
+          1,
+          {
+            "text": "2"
+          }
+        ],
+        [
+          3,
+          "x"
+        ],
+        [
+          4,
+          3,
+          {
+            "text": "5"
+          }
+        ],
+        [
+          5,
+          1,
+          {
+            "text": "R"
+          }
+        ],
+        [
+          6,
+          "x"
+        ]
+      ],
+      "barres": []
+    },
+    "scales": [
+      "Ionian",
+      "Lydian",
+      "Melodic Minor",
+      "Harmonic Minor",
+      "Harmonic Major",
+      "Lydian b3",
+      "Lydian #6"
+    ],
+    "melody": "7"
   }
 ]
