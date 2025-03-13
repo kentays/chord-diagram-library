@@ -423,15 +423,19 @@ string-input select:nth-child(3) {
     width: 100%;
 }
 
+/* Update button container styling */
 .buttons-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-top: 20px;
+    width: 100%;
 }
 
+/* Consistent button styling */
 .buttons-container button,
-.custom-file-upload {
+.custom-file-upload,
+#download-all-diagrams {
     background-color: #007BFF;
     color: white;
     padding: 10px 15px;
@@ -441,11 +445,26 @@ string-input select:nth-child(3) {
     text-align: center;
     font-size: 14px;
     transition: background-color 0.3s;
+    width: 100%;
+    margin: 0;
+    /* Add these to ensure consistent sizing */
+    box-sizing: border-box;
+    display: inline-block;
+    line-height: 1.5;
 }
 
-.buttons-container button:hover,
-.custom-file-upload:hover {
-    background-color: #0056b3;
+/* Ensure label behaves like a button */
+.custom-file-upload {
+    display: inline-block;
+}
+
+/* Style for danger actions (like clear/delete) */
+#clear-saved-diagrams {
+    background-color: #ff4d4d;
+}
+
+#clear-saved-diagrams:hover {
+    background-color: #ff3333;
 }
 
 /* Hide the actual file input */

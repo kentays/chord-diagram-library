@@ -222,12 +222,14 @@ $(document).ready(function() {
             savedDiagramsContainer.append(diagramElement);
         });
     }
-
     function deleteDiagram(index) {
-        const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
-        savedDiagrams.splice(index, 1);
-        localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(savedDiagrams));
-        displaySavedDiagrams();
+        const confirmation = confirm('Are you sure you want to delete this diagram?');
+        if (confirmation) {
+            const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+            savedDiagrams.splice(index, 1);
+            localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(savedDiagrams));
+            displaySavedDiagrams();
+        }
     }
 
     function populateDropdowns() {
@@ -469,11 +471,6 @@ $(document).ready(function() {
             localStorage.removeItem(SAVED_DIAGRAMS_KEY);
             displaySavedDiagrams();
         }
-    });
-
-    $("#saved-diagrams").on("click", ".delete-diagram", function() {
-        const index = $(this).data("index");
-        deleteDiagram(index);
     });
 
     //download json
