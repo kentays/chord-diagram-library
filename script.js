@@ -333,7 +333,9 @@ $(document).ready(function() {
         }).get();
 
         const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
-        const filteredDiagrams = savedDiagrams.filter(diagram => {
+        
+        // Show all diagrams if no scales are selected
+        const filteredDiagrams = selectedScales.length === 0 ? savedDiagrams : savedDiagrams.filter(diagram => {
             return diagram.scales.some(scale => selectedScales.includes(scale));
         });
 

@@ -137,9 +137,15 @@ button:hover {
     margin: 0;
 }
 
+/* Replace the existing .filter-content style */
 .filter-content {
-    display: none; /* Hide content by default */
+    display: none; /* Hidden by default for non-major scales */
     padding-top: 10px;
+}
+
+/* Add new style for major scale filters */
+#major-modes {
+    display: block; /* Show major scales by default */
 }
 
 #saved-diagrams {
