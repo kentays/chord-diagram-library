@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-    <h1>Chord Diagram Generator</h1>
+    <h1>Chord Diagram Library</h1>
 
     <div class="container">
         <div class="column" id="diagram-generation">
@@ -18,7 +18,12 @@
                 <form id="settings-form">
                     <div class="settings-grid">
                         <div class="form-group">
-                            <input type="text" id="title" name="title" value="Chord Name">
+                            <input type="text" 
+                                   id="title" 
+                                   name="title" 
+                                   value="Chord Name" 
+                                   class="required-field"
+                                   placeholder="Enter chord name">
                         </div>
                     </div>
 
@@ -106,9 +111,14 @@
                 <div class="header-cell">Delete</div>
             </div>
             <div id="saved-diagrams"></div>
-            <button id="clear-saved-diagrams">Clear Saved Diagrams</button>
-            <button id="download-saved-diagrams">Download Saved Diagrams</button>
-            <input type="file" id="load-saved-diagrams" accept=".json"><br><br>
+            <div class="buttons-container">
+                <button id="clear-saved-diagrams">Clear Saved Diagrams</button>
+                <button id="download-saved-diagrams">Download Saved Diagrams</button>
+                <label for="load-saved-diagrams" class="custom-file-upload">
+                    Load Saved Diagrams
+                </label>
+                <input type="file" id="load-saved-diagrams" accept=".json">
+            </div>
         </div>
     </div>
 

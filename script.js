@@ -382,7 +382,29 @@ $(document).ready(function() {
     $("#settings-form").submit(function(event) {
         event.preventDefault();
 
-        const title = $("#title").val();
+        // Validate chord name
+        const title = $("#title").val().trim();
+        if (title === '' || title === 'Chord Name') {
+            alert('Please enter a chord name');
+            $("#title").focus();
+            return false;
+        }
+
+        // Check if all frets are 'x'
+        const fretValues = [
+            $("#string1").val(),
+            $("#string2").val(),
+            $("#string3").val(),
+            $("#string4").val(),
+            $("#string5").val(),
+            $("#string6").val()
+        ];
+
+        if (fretValues.every(value => value === 'x')) {
+            alert('At least one fret position must be selected');
+            return false;
+        }
+
         const strings = $("#strings").val();
         const frets = $("#frets").val();
         const style = $("#style").val();
@@ -505,9 +527,9 @@ $(document).ready(function() {
     const initialChord = {
         fingers: [
             [1, 'x'],
-            [2, 1],
-            [3, 2],
-            [4, 3],
+            [2, 1, { text: '5' }],
+            [3, 2, { text: '3' }],
+            [4, 3, { text: 'R' }],
             [5, 'x'],
             [6, 'x']
         ],
@@ -602,3 +624,17 @@ function addDownloadButtons(settings) {
         $(element).append(downloadPngButton);
     });
 }
+
+// Add input event handlers for the title field
+$("#title").on({
+    focus: function() {
+        if (this.value === 'Chord Name') {
+            this.value = '';
+        }
+    },
+    blur: function() {
+        if (this.value.trim() === '') {
+            this.value = 'Chord Name';
+        }
+    }
+});
