@@ -1,4 +1,4 @@
-# Chord Diagram Generator
+# Chord Diagram Library
 
 A web-based tool for creating and managing guitar chord diagrams with scale degree annotations.
 
