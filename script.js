@@ -38,7 +38,10 @@ $(document).ready(function() {
 
     const chart = new svguitar.SVGuitarChord("#result");
 
+    let currentSettings = {}; // Global variable to store the current settings
+
     function generateDiagram(settings, chord) {
+        currentSettings = settings; // Store the current settings globally
         const stringSets = calculateStringSets(chord);
         const resultContainer = $("#result");
         resultContainer.empty();
@@ -64,7 +67,7 @@ $(document).ready(function() {
             console.log(`Generated diagram for set ${index}:`, set); // Log each generated diagram
         });
 
-        addDownloadButtons(); // Add download buttons after generating diagrams
+        addDownloadButtons(currentSettings); // Add download buttons after generating diagrams
     }
 
     function determineScales(degrees) {
@@ -198,22 +201,24 @@ $(document).ready(function() {
         });
 
         savedDiagrams.forEach((diagram, sortedIndex) => {
-            const scalesText = diagram.scales ? diagram.scales.join(", ") : "Unknown";
-            const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
             const diagramElement = $(`
-                <div id="diagram-${sortedIndex}">
-                    <span>${diagram.melody} - ${diagram.settings.title}</span>
+                <div id="diagram-${sortedIndex}" class="saved-diagram-row">
+                    <span class="diagram-melody">${diagram.melody || 'N/A'}</span>
+                    <span class="diagram-name">${diagram.settings.title}</span>
                     <button class="delete-diagram" data-original-index="${diagram.originalIndex}">Delete</button>
                 </div>
             `);
-            diagramElement.css("cursor", "pointer");
-            diagramElement.find("span").click(function() {
+
+            // Add click handlers
+            diagramElement.find(".diagram-melody, .diagram-name").click(function() {
                 generateDiagram(diagram.settings, diagram.chord);
             });
+
             diagramElement.find(".delete-diagram").click(function() {
                 const originalIndex = $(this).data("original-index");
                 deleteDiagram(originalIndex);
             });
+
             savedDiagramsContainer.append(diagramElement);
         });
     }
@@ -226,17 +231,19 @@ $(document).ready(function() {
     }
 
     function populateDropdowns() {
-        //fret numbers
+        // Fret number dropdowns
         const dropdowns = ['#string1', '#string2', '#string3', '#string4', '#string5', '#string6'];
         dropdowns.forEach(id => {
             const dropdown = $(id);
             dropdown.empty();
             dropdown.append('<option value="x">x</option>');
-            for (let i = 0; i <= 9; i++) {
+            for (let i = 0; i <= 24; i++) {
                 dropdown.append(`<option value="${i}">${i}</option>`);
             }
         });
-        //scale degrees options
+
+        // Scale degrees options
+        const textDropdowns = ['#string1-text', '#string2-text', '#string3-text', '#string4-text', '#string5-text', '#string6-text'];
         const textOptions = [
             { value: "", text: "None" },
             { value: "R", text: "R" },
@@ -255,14 +262,22 @@ $(document).ready(function() {
             { value: "b7", text: "b7" },
             { value: "7", text: "7" }
         ];
-        //create dropdowns for each string
-        const textDropdowns = ['#string1-text', '#string2-text', '#string3-text', '#string4-text', '#string5-text', '#string6-text'];
+
         textDropdowns.forEach(id => {
             const dropdown = $(id);
             dropdown.empty();
             textOptions.forEach(option => {
                 dropdown.append(`<option value="${option.value}">${option.text}</option>`);
             });
+        });
+
+        // Add visual feedback for dropdown changes
+        $('select').change(function() {
+            const stringInput = $(this).closest('.string-input');
+            stringInput.addClass('modified');
+            setTimeout(() => {
+                stringInput.removeClass('modified');
+            }, 300);
         });
     }
 
@@ -328,23 +343,37 @@ $(document).ready(function() {
 
         const savedDiagramsContainer = $("#saved-diagrams");
         savedDiagramsContainer.empty();
+        
+        // Add headers if they don't exist
+        if ($('.saved-diagrams-header').length === 0) {
+            savedDiagramsContainer.before(`
+                <div class="saved-diagrams-header">
+                    <div class="header-cell">Top Note</div>
+                    <div class="header-cell">Chord Name</div>
+                    <div class="header-cell">Delete</div>
+                </div>
+            `);
+        }
+
         filteredDiagrams.forEach((diagram, index) => {
-            const scalesText = diagram.scales ? diagram.scales.join(", ") : "Unknown";
-            const melodyText = diagram.melody ? `Melody: ${diagram.melody}` : "Unknown";
             const diagramElement = $(`
-                <div id="diagram-${index}">
-                    <span>${diagram.melody} - ${diagram.settings.title}</span>
+                <div id="diagram-${index}" class="saved-diagram-row">
+                    <span class="diagram-melody">${diagram.melody || 'N/A'}</span>
+                    <span class="diagram-name">${diagram.settings.title}</span>
                     <button class="delete-diagram" data-original-index="${diagram.originalIndex}">Delete</button>
                 </div>
             `);
-            diagramElement.css("cursor", "pointer");
-            diagramElement.find("span").click(function() {
+
+            // Add click handlers
+            diagramElement.find(".diagram-melody, .diagram-name").click(function() {
                 generateDiagram(diagram.settings, diagram.chord);
             });
+
             diagramElement.find(".delete-diagram").click(function() {
                 const originalIndex = $(this).data("original-index");
                 deleteDiagram(originalIndex);
             });
+
             savedDiagramsContainer.append(diagramElement);
         });
     }
@@ -496,33 +525,35 @@ $(document).ready(function() {
 });
 
 // Function to download all diagrams as SVG and PNG in a zip file
-function downloadAllDiagrams() {
+function downloadAllDiagrams(settings) {
     const zip = new JSZip();
     const svgFolder = zip.folder("SVGs");
     const pngFolder = zip.folder("PNGs");
+    const scale = 6; // Increase scale factor for higher resolution
 
     $("#result > div").each(function(index, element) {
         const svgElement = $(element).find("svg")[0];
         if (svgElement) {
             const svgData = new XMLSerializer().serializeToString(svgElement);
             const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-            svgFolder.file(`chord-diagram-set-${index + 1}.svg`, svgBlob);
+            svgFolder.file(`${settings.title}-set-${index + 1}.svg`, svgBlob);
 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             const img = new Image();
             img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                ctx.scale(scale, scale);
                 ctx.drawImage(img, 0, 0);
                 canvas.toBlob(function(blob) {
-                    pngFolder.file(`chord-diagram-set-${index + 1}.png`, blob);
+                    pngFolder.file(`${settings.title}-set-${index + 1}.png`, blob);
                     if (index === $("#result > div").length - 1) {
                         zip.generateAsync({ type: "blob" }).then(function(content) {
-                            saveAs(content, "chord-diagrams.zip");
+                            saveAs(content, `${settings.title}-chord-diagrams.zip`);
                         });
                     }
-                });
+                }, 'image/png', 1.0); // Set quality to maximum
             };
             img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
         }
@@ -530,10 +561,15 @@ function downloadAllDiagrams() {
 }
 
 // Add event listener for the download all diagrams button
-document.getElementById('download-all-diagrams').addEventListener('click', downloadAllDiagrams);
+document.getElementById('download-all-diagrams').addEventListener('click', function() {
+    const settings = {
+        title: $("#chord-name").text() || "chord"
+    };
+    downloadAllDiagrams(settings);
+});
 
 // Add a separate download PNG button under each diagram
-function addDownloadButtons() {
+function addDownloadButtons(settings) {
     $("#result > div").each(function(index, element) {
         const downloadPngButton = $('<button>Download PNG</button>');
         downloadPngButton.on('click', function() {
@@ -543,14 +579,17 @@ function addDownloadButtons() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const img = new Image();
+                const scale = 3; // Increase this value to make the PNG larger
+
                 img.onload = function() {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    ctx.scale(scale, scale);
                     ctx.drawImage(img, 0, 0);
                     const pngUrl = canvas.toDataURL('image/png');
                     const downloadLink = document.createElement('a');
                     downloadLink.href = pngUrl;
-                    downloadLink.download = `chord-diagram-set-${index + 1}.png`;
+                    downloadLink.download = `${settings.title}-set-${index + 1}.png`;
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
                     document.body.removeChild(downloadLink);

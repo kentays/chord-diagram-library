@@ -3,10 +3,34 @@
     height: auto;
 }
 #saved-diagrams div {
-    cursor: pointer;
-    border: 1px solid #ccc;
-    padding: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     margin-bottom: 5px;
+    background: white;
+}
+
+#saved-diagrams div span {
+    text-align: center;
+}
+
+#saved-diagrams div button {
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin: 0;
+}
+
+#saved-diagrams div button:hover {
+    background-color: #ff3333;
 }
 
 body {
@@ -29,7 +53,7 @@ h1 {
     flex-wrap: wrap;
     justify-content: space-around;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1200px; /* Adjusted to fit a standard laptop window */
     margin-top: 20px;
     gap: 20px; /* Add space between columns */
 }
@@ -41,8 +65,8 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     flex: 1;
-    min-width: 250px;
-    max-width: 300px;
+    min-width: 200px;
+    max-width: 600px; /* Limit maximum width to fit a standard laptop window */
 }
 
 form {
@@ -53,7 +77,7 @@ form {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
-    width: 300px;
+    width:100%; /* Ensure form fits within the column */
 }
 
 label {
@@ -128,17 +152,242 @@ button:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.mode-option {
-    display: inline-block;
+#saved-diagrams-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+.saved-diagrams-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.header-cell {
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+/* Style for each saved diagram row */
+#saved-diagrams > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background: white;
+}
+
+/* Style for text content in each column */
+#saved-diagrams > div > span {
+    text-align: center;
+    padding: 5px;
+}
+
+/* Style for delete button column */
+#saved-diagrams > div > button {
     padding: 5px 10px;
-    margin: 5px;
-    border: 1px solid #ccc;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin: 0;
+}
+
+#saved-diagrams > div > button:hover {
+    background-color: #ff3333;
+}
+
+.mode-option {
     border-radius: 4px;
     cursor: pointer;
     user-select: none;
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    text-align: center;
 }
 
 .mode-option.selected {
     border-color: green;
     background-color: #e0ffe0;
+}
+
+.chord-form-container {
+    width: 100%; /* Ensure it fits within the column */
+    margin: 0 auto;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Change to single column */
+    gap: 15px;
+    margin-bottom: 20px;
+    max-width: 300px; /* Limit width for better readability */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.string-input {
+    display: flex;
+    flex-direction: row; /* Change to row to align items inline */
+    align-items: center; /* Center items vertically */
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.string-input.modified {
+    background-color: #e8f5e9;
+    transform: scale(1.02);
+}
+
+.string-label {
+    font-weight: bold;
+    margin-right: 10px; /* Add space between label and dropdowns */
+    color: #333;
+}
+
+select {
+    width: auto; /* Allow dropdowns to size automatically */
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    margin-right: 10px; /* Add space between dropdowns */
+    cursor: pointer;
+}
+
+select:last-child {
+    margin-right: 0; /* Remove margin from the last dropdown */
+}
+
+select:hover {
+    border-color: #999;
+}
+
+/* Optional: Make the dropdowns a bit larger for better usability */
+.string-input select {
+    padding: 10px;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+.barres-input {
+    grid-column: span 6;
+    margin-top: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Keep single column on mobile */
+    }
+}
+
+.saved-diagram-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 80px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background: white;
+}
+
+.saved-diagram-row span {
+    text-align: center;
+    cursor: pointer;
+}
+
+.saved-diagram-row .diagram-melody,
+.saved-diagram-row .diagram-name {
+    padding: 5px;
+}
+
+.saved-diagram-row .diagram-melody:hover,
+.saved-diagram-row .diagram-name:hover {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.saved-diagram-row .delete-diagram {
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin: 0;
+}
+
+.saved-diagram-row .delete-diagram:hover {
+    background-color: #ff3333;
 }

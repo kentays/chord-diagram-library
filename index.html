@@ -9,38 +9,61 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-
     <h1>Chord Diagram Generator</h1>
 
     <div class="container">
-
-        <!--diagram generation column-->
         <div class="column" id="diagram-generation">
             <h3>Generate Chord Diagram</h3>
-            <form id="settings-form">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" value="Chord Name">
-                <label for="string1">String 1:</label>
-                <select id="string1" name="string1"></select>
-                <select id="string1-text" name="string1-text"></select><br>
-                <label for="string2">String 2:</label>
-                <select id="string2" name="string2"></select>
-                <select id="string2-text" name="string2-text"></select><br>
-                <label for="string3">String 3:</label>
-                <select id="string3" name="string3"></select>
-                <select id="string3-text" name="string3-text"></select><br>
-                <label for="string4">String 4:</label>
-                <select id="string4" name="string4"></select>
-                <select id="string4-text" name="string4-text"></select><br>
-                <label for="string5">String 5:</label>
-                <select id="string5" name="string5"></select>
-                <select id="string5-text" name="string5-text"></select><br>
-                <label for="string6">String 6:</label>
-                <select id="string6" name="string6"></select>
-                <select id="string6-text" name="string6-text"></select><br><br>
+            <div class="chord-form-container">
+                <form id="settings-form">
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label for="title">Chord Name</label>
+                            <input type="text" id="title" name="title" value="Chord Name">
+                        </div>
+                    </div>
 
-                <button type="submit">Generate Diagram</button>
-            </form>
+                    <div class="form-grid">
+                        <div class="header-row">
+                            <span class="header">String</span>
+                            <span class="header">Fret</span>
+                            <span class="header">Interval</span>
+                        </div>
+                        <div class="string-input">
+                            <label class="string-label">1 (E)</label>
+                            <select id="string1" name="string1"></select>
+                            <select id="string1-text" name="string1-text"></select>
+                        </div>
+                        <div class="string-input">
+                            <label class="string-label">2 (B)</label>
+                            <select id="string2" name="string2"></select>
+                            <select id="string2-text" name="string2-text"></select>
+                        </div>
+                        <div class="string-input">
+                            <label class="string-label">3 (G)</label>
+                            <select id="string3" name="string3"></select>
+                            <select id="string3-text" name="string3-text"></select>
+                        </div>
+                        <div class="string-input">
+                            <label class="string-label">4 (D)</label>
+                            <select id="string4" name="string4"></select>
+                            <select id="string4-text" name="string4-text"></select>
+                        </div>
+                        <div class="string-input">
+                            <label class="string-label">5 (A)</label>
+                            <select id="string5" name="string5"></select>
+                            <select id="string5-text" name="string5-text"></select>
+                        </div>
+                        <div class="string-input">
+                            <label class="string-label">6 (E)</label>
+                            <select id="string6" name="string6"></select>
+                            <select id="string6-text" name="string6-text"></select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-button">Generate Diagram</button>
+                </form>
+            </div>
         </div>
 
         <div class="column" id="diagram-output">
@@ -78,6 +101,11 @@
 
         <div class="column" id="saved-diagrams-container">
             <h3>Saved Diagrams</h3>
+            <div class="saved-diagrams-header">
+                <div class="header-cell">Top Note</div>
+                <div class="header-cell">Chord Name</div>
+                <div class="header-cell">Delete</div>
+            </div>
             <div id="saved-diagrams"></div>
             <button id="clear-saved-diagrams">Clear Saved Diagrams</button>
             <button id="download-saved-diagrams">Download Saved Diagrams</button>
