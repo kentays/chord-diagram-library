@@ -1,5 +1,6 @@
 $(document).ready(function() {
     const SAVED_DIAGRAMS_KEY = "savedDiagrams";
+    const HOLDSWORTH_DIAGRAMS_URL = "https://kentays.github.io/chord-diagram-library/diagrams/saved-diagrams.json";
 
     const scales = {
         //major modes
@@ -541,6 +542,24 @@ $(document).ready(function() {
     $(".filter-header").click(function() {
         $(this).next(".filter-content").slideToggle();
     });
+
+    $("#load-holdsworth-voicings").click(function() {
+        fetch(HOLDSWORTH_DIAGRAMS_URL)
+            .then(response => response.json())
+            .then(data => {
+                const confirmation = confirm('This will add Holdsworth voicings to your saved diagrams. Continue?');
+                if (confirmation) {
+                    const currentDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+                    const combinedDiagrams = [...currentDiagrams, ...data];
+                    localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(combinedDiagrams));
+                    displaySavedDiagrams();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading Holdsworth voicings:', error);
+                alert('Failed to load Holdsworth voicings. Please try again later.');
+            });
+    });
 });
 
 // Function to download all diagrams as SVG and PNG in a zip file
@@ -635,3 +654,21 @@ $("#title").on({
         }
     }
 });
+
+function loadHoldsworthVoicings() {
+    fetch(HOLDSWORTH_DIAGRAMS_URL)
+        .then(response => response.json())
+        .then(data => {
+            const confirmation = confirm('This will add Holdsworth voicings to your saved diagrams. Continue?');
+            if (confirmation) {
+                const currentDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+                const combinedDiagrams = [...currentDiagrams, ...data];
+                localStorage.setItem(SAVED_DIAGRAMS_KEY, JSON.stringify(combinedDiagrams));
+                displaySavedDiagrams();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading Holdsworth voicings:', error);
+            alert('Failed to load Holdsworth voicings. Please try again later.');
+        });
+}
