@@ -237,7 +237,7 @@ $(document).ready(function() {
             const dropdown = $(id);
             dropdown.empty();
             dropdown.append('<option value="x">x</option>');
-            for (let i = 0; i <= 24; i++) {
+            for (let i = 0; i <= 9; i++) {
                 dropdown.append(`<option value="${i}">${i}</option>`);
             }
         });

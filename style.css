@@ -59,6 +59,8 @@ h1 {
 }
 
 .column {
+    /* Add consistent margin-top to all columns */
+    margin-top: 20px;
     background: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -73,11 +75,8 @@ form {
     display: flex;
     flex-direction: column;
     background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
-    width:100%; /* Ensure form fits within the column */
+    width:90%; /* Ensure form fits within the column */
 }
 
 label {
@@ -116,10 +115,11 @@ button:hover {
     max-width: 600px;
 }
 
+/*3RD COLUMN STYLE*/
 #scale-filters {
-    margin-top: 20px;
+    /* Remove margin-top to align with other columns */
     width: 100%;
-    max-width: 200px;
+    max-width: 250px;
     display: flex;
     flex-direction: column; /* Stack filter sections vertically */
     gap: 10px; /* Add space between filter sections */
@@ -147,7 +147,6 @@ button:hover {
     width: 100%;
     max-width: 300px;
     background: #fff;
-    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -216,6 +215,15 @@ button:hover {
     margin-bottom: 5px;
     border: 1px solid #ccc;
     text-align: center;
+    position: relative;  /* Add this */
+}
+
+.mode-option input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
 }
 
 .mode-option.selected {
@@ -225,6 +233,7 @@ button:hover {
 
 .chord-form-container {
     width: 100%; /* Ensure it fits within the column */
+    max-width: 600px;
     margin: 0 auto;
     padding: 0;
     background: none;
@@ -236,16 +245,18 @@ button:hover {
     grid-template-columns: 1fr; /* Change to single column */
     gap: 15px;
     margin-bottom: 20px;
-    max-width: 300px; /* Limit width for better readability */
+    max-width: 600px; /* Limit width for better readability */
     margin-left: auto;
     margin-right: auto;
+    width: 100%;
 }
 
 .string-input {
-    display: flex;
-    flex-direction: row; /* Change to row to align items inline */
-    align-items: center; /* Center items vertically */
-    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
     background: white;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -261,6 +272,7 @@ button:hover {
     font-weight: bold;
     margin-right: 10px; /* Add space between label and dropdowns */
     color: #333;
+    grid-column: 1;
 }
 
 select {
@@ -279,6 +291,14 @@ select:last-child {
 
 select:hover {
     border-color: #999;
+}
+
+.string-input select:nth-child(2) {
+    grid-column: 2;
+}
+
+string-input select:nth-child(3) {
+    grid-column: 3;
 }
 
 /* Optional: Make the dropdowns a bit larger for better usability */
@@ -390,4 +410,15 @@ select:hover {
 
 .saved-diagram-row .delete-diagram:hover {
     background-color: #ff3333;
+}
+
+.generation-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    width: 100%;
 }
