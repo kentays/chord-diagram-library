@@ -1,69 +1,149 @@
+/* Base styles */
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    padding: 0;
+    margin: 0;
+    padding: 20px;
     background-color: #f4f4f4;
 }
 
-h1 {
-    text-align: center;
-    color: #333;
-}
-
-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
+/* Container and column layout */
+.container {
+    display: flex;
+    gap: 40px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 20px;
 }
 
-label {
-    display: block;
-    margin: 10px 0 5px;
+#diagram-generation {
+    flex: 0 0 400px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-input[type="text"],
-input[type="number"],
-select {
+/* Title input styling */
+#title {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #ccc;
     border-radius: 4px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-button {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 15px;
+#title:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(74, 175, 80, 0.3);
+}
+
+#title::placeholder {
+    color: #999;
+    opacity: 0.8;
+}
+
+.output-column {
+    flex: 1;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+/* String input styling */
+.string-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.string-input-group:first-of-type {
+    margin-top: 20px;
+}
+
+.string-label {
+    flex: 0 0 70px;
+    color: #666;
+    font-size: 14px;
+    padding-right: 10px;
+}
+
+input[name^="string"] {
+    flex: 1;
+    width: calc(100% - 70px);
+    font-family: monospace;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+input[name^="string"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(74, 175, 80, 0.3);
+}
+
+/* Diagram output area */
+#result {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+    min-height: 200px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#result svg {
+    max-width: 100%;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+/* Button styling */
+.form-buttons {
+    margin-top: 20px;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-button,
+.secondary-button {
+    padding: 10px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    color: white;
+}
+
+.action-button {
+    flex: 1;
+    background-color: #4CAF50;
+}
+
+.action-button:hover {
+    background-color: #45a049;
+}
+
+.secondary-button {
     width: 100%;
+    background-color: #6c757d;
 }
 
-button:hover {
-    background-color: #218838;
-}
-
-#result {
-    margin-top: 20px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-#scale-filters {
-    margin-top: 20px;
-}
-
-#saved-diagrams {
-    margin-top: 20px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.secondary-button:hover {
+    background-color: #5a6268;
 }

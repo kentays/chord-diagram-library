@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
             [0, 2, 4],    // String 2 (B): B C# D#
             [1, 2, 4],    // String 3 (G): G# A B
             [1, 2, 4],    // String 4 (D): D# E F#
-            [2, 4, 5],    // String 5 (A): B C# D#
+            [0, 2, 4],    // String 5 (A): A B C#
             [0, 2, 4]     // String 6 (low E): E F# G#
         ]
     };
@@ -43,37 +43,35 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear previous SVG content
             resultDiv.innerHTML = '';
 
-            // Find the highest fret number to set diagram size
-            const maxFret = Math.max(...frets.flat().filter(f => !isNaN(f))) + 1;
+            // Find the highest fret number, use minimum of 5 frets if no frets specified
+            const maxFret = Math.max(
+                5,
+                ...frets.flat().filter(f => !isNaN(f))
+            ) + 1;
 
             // Create new SVGuitar instance
             const guitar = new svguitar.SVGuitarChord('#result');
 
             // Configure the diagram
             guitar.configure({
-                title: title,
+                title: '',
                 strings: 6,
                 frets: maxFret,
                 position: 1,
-                tuning: ['E', 'B', 'G', 'D', 'A', 'E'],
+                tuning: [],
                 fretSize: 1.5,
                 fretSpace: 2,
                 stringSpace: 2,
-                showTuning: true,
-                orientation: 'horizontal'  // Changed from 'vertical' to 'horizontal'
+                showTuning: false,
+                orientation: 'horizontal'
             });
 
-            // Convert fret positions to chord positions array
-            const positions = [];
-            frets.forEach((stringFrets, stringIndex) => {
-                stringFrets.forEach(fret => {
-                    if (!isNaN(fret)) {
-                        positions.push([stringIndex + 1, fret]);
-                    }
-                });
-            });
+            // Set the chord with positions (or empty array if no frets)
+            const positions = frets.flatMap((stringFrets, stringIndex) => 
+                stringFrets.map(fret => [stringIndex + 1, fret])
+                .filter(([_, fret]) => !isNaN(fret))
+            );
 
-            // Set the chord with all positions
             guitar.chord({
                 fingers: positions,
                 barres: []
@@ -82,6 +80,48 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error in generateFretboardPattern:', error);
             resultDiv.innerHTML = `<p style="color: red;">Error generating diagram: ${error.message}</p>`;
+        }
+    }
+
+    function downloadPattern(title, frets, format = 'svg') {
+        const svgElement = document.querySelector('#result svg');
+        if (!svgElement) {
+            alert('No pattern to download');
+            return;
+        }
+
+        if (format === 'svg') {
+            // SVG download logic
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+            const downloadLink = document.createElement('a');
+            downloadLink.download = `${title.replace(/\s+/g, '-').toLowerCase()}.svg`;
+            downloadLink.href = URL.createObjectURL(svgBlob);
+            downloadLink.click();
+            URL.revokeObjectURL(downloadLink.href);
+        } else if (format === 'png') {
+            // PNG download logic
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            // Set canvas size (multiply by 2 for better resolution)
+            canvas.width = svgElement.width.baseVal.value * 2;
+            canvas.height = svgElement.height.baseVal.value * 2;
+            
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(function(blob) {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.download = `${title.replace(/\s+/g, '-').toLowerCase()}.png`;
+                    downloadLink.href = URL.createObjectURL(blob);
+                    downloadLink.click();
+                    URL.revokeObjectURL(downloadLink.href);
+                }, 'image/png');
+            };
+
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
         }
     }
 
@@ -97,18 +137,98 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
+    function setupFretInputs() {
+        for (let i = 1; i <= 6; i++) {
+            const input = document.querySelector(`input[name="string${i}"]`);
+            if (input) {
+                input.placeholder = "Enter frets (space to separate)";
+                
+                // Add input event listener for real-time updates
+                input.addEventListener('input', debounce(function() {
+                    updateDiagram();
+                }, 300)); // 300ms delay to prevent too frequent updates
+            }
+        }
+    }
 
-        const title = document.getElementById('title').value;
+    // Add debounce function to prevent too many rapid updates
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Function to update diagram in real-time
+    function updateDiagram() {
         const frets = [];
-
-        // Get frets from all 6 strings
+        // Collect all fret values
         for (let i = 1; i <= 6; i++) {
             const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-            frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+            frets.push(fretInput.split(/[,\s]+/)
+                .filter(n => n !== '' && /^\d+$/.test(n))
+                .map(fret => parseInt(fret.trim()))
+            );
         }
+        
+        // Only generate if we have valid fret numbers
+        if (frets.some(stringFrets => stringFrets.length > 0)) {
+            const title = document.getElementById('title').value || 'Fretboard Pattern';
+            generateFretboardPattern(title, frets);
+        }
+    }
 
-        generateFretboardPattern(title, frets);
+    // Remove the form submit event listener since we're updating in real-time
+    // Keep the clear functionality
+
+    // Update the click event listeners
+    function setupDownloadButtons() {
+        const downloadSvgBtn = document.getElementById('download-svg');
+        const downloadPngBtn = document.getElementById('download-png');
+
+        downloadSvgBtn.addEventListener('click', function() {
+            const title = document.getElementById('title').value;
+            const frets = [];
+            for (let i = 1; i <= 6; i++) {
+                const fretInput = document.querySelector(`input[name="string${i}"]`).value;
+                frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+            }
+            downloadPattern(title, frets, 'svg');
+        });
+
+        downloadPngBtn.addEventListener('click', function() {
+            const title = document.getElementById('title').value;
+            const frets = [];
+            for (let i = 1; i <= 6; i++) {
+                const fretInput = document.querySelector(`input[name="string${i}"]`).value;
+                frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+            }
+            downloadPattern(title, frets, 'png');
+        });
+    }
+
+    // Add clear functionality
+    document.getElementById('clear-inputs').addEventListener('click', function() {
+        // Reset title to default
+        document.getElementById('title').value = 'Fretboard Pattern';
+        
+        // Clear all string inputs
+        for (let i = 1; i <= 6; i++) {
+            const input = document.querySelector(`input[name="string${i}"]`);
+            if (input) {
+                input.value = '';
+            }
+        }
+        
+        // Generate empty diagram with 5 frets instead of clearing
+        generateFretboardPattern('Fretboard Pattern', [[], [], [], [], [], []]);
     });
+
+    setupFretInputs();
+    setupDownloadButtons();
 });
