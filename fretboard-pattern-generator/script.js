@@ -6,6 +6,9 @@ console.log('SVGuitar version:', svguitar?.version);
 // Add this after your existing console.log statements
 console.log('Available SVGuitar methods:', Object.getOwnPropertyNames(svguitar.SVGuitarChord.prototype));
 
+// Add these constants at the top of your file
+const STORAGE_KEY = 'savedPatterns';
+
 // This file contains the JavaScript logic for handling user input, generating fretboard patterns based on the notes provided, and updating the display with the generated patterns.
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -229,6 +232,116 @@ document.addEventListener('DOMContentLoaded', function() {
         generateFretboardPattern('Fretboard Pattern', [[], [], [], [], [], []]);
     });
 
+    // Add these functions inside your DOMContentLoaded event listener
+    function setupPatternLibrary() {
+        const savePatternBtn = document.getElementById('save-pattern');
+        const exportLibraryBtn = document.getElementById('export-library');
+        const importLibraryInput = document.getElementById('import-library');
+
+        savePatternBtn.addEventListener('click', saveCurrentPattern);
+        exportLibraryBtn.addEventListener('click', exportLibrary);
+        importLibraryInput.addEventListener('change', importLibrary);
+
+        // Load saved patterns on startup
+        loadSavedPatterns();
+    }
+
+    function saveCurrentPattern() {
+        const title = document.getElementById('title').value || 'Untitled Pattern';
+        const frets = [];
+        for (let i = 1; i <= 6; i++) {
+            const fretInput = document.querySelector(`input[name="string${i}"]`).value;
+            frets.push(fretInput.split(/[,\s]+/)
+                .filter(n => n !== '' && /^\d+$/.test(n))
+                .map(fret => parseInt(fret.trim()))
+            );
+        }
+
+        const pattern = { title, frets };
+        const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        savedPatterns.push(pattern);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPatterns));
+        loadSavedPatterns(); // Refresh the list
+    }
+
+    function loadSavedPatterns() {
+        const patternsList = document.getElementById('patterns-list');
+        const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        
+        patternsList.innerHTML = savedPatterns.map((pattern, index) => `
+            <div class="pattern-item" data-index="${index}">
+                <h4>${pattern.title}</h4>
+                <div class="pattern-actions">
+                    <button class="secondary-button load-pattern">Load</button>
+                    <button class="secondary-button delete-pattern">Delete</button>
+                </div>
+            </div>
+        `).join('');
+
+        // Add event listeners for load and delete buttons
+        patternsList.querySelectorAll('.load-pattern').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.closest('.pattern-item').dataset.index;
+                loadPattern(savedPatterns[index]);
+            });
+        });
+
+        patternsList.querySelectorAll('.delete-pattern').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = e.target.closest('.pattern-item').dataset.index;
+                deletePattern(index);
+            });
+        });
+    }
+
+    function loadPattern(pattern) {
+        document.getElementById('title').value = pattern.title;
+        pattern.frets.forEach((frets, index) => {
+            const input = document.querySelector(`input[name="string${index + 1}"]`);
+            if (input) {
+                input.value = frets.join(', ');
+            }
+        });
+        generateFretboardPattern(pattern.title, pattern.frets);
+    }
+
+    function deletePattern(index) {
+        const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        savedPatterns.splice(index, 1);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPatterns));
+        loadSavedPatterns(); // Refresh the list
+    }
+
+    function exportLibrary() {
+        const savedPatterns = localStorage.getItem(STORAGE_KEY) || '[]';
+        const blob = new Blob([savedPatterns], { type: 'application/json' });
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = 'fretboard-patterns.json';
+        downloadLink.click();
+        URL.revokeObjectURL(downloadLink.href);
+    }
+
+    function importLibrary(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const patterns = JSON.parse(e.target.result);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(patterns));
+                    loadSavedPatterns();
+                } catch (error) {
+                    console.error('Error importing patterns:', error);
+                    alert('Invalid pattern file');
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
     setupFretInputs();
     setupDownloadButtons();
+    // Add this line at the end of your DOMContentLoaded event listener
+    setupPatternLibrary();
 });

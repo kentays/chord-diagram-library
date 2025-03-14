@@ -10,17 +10,67 @@ body {
 .container {
     display: flex;
     gap: 40px;
-    max-width: 1200px;
+    max-width: 1400px;  /* Increased from 1200px */
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 20px;
 }
 
 #diagram-generation {
-    flex: 0 0 400px;
+    flex: 0 0 350px;  /* Reduced from 400px */
     background: #fff;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Pattern library column */
+.patterns-library {
+    flex: 0 0 300px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.patterns-list {
+    flex: 1;
+    overflow-y: auto;
+    margin: 20px 0;
+    max-height: 500px;
+}
+
+.pattern-item {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pattern-item:hover {
+    background-color: #f8f9fa;
+    border-color: #4CAF50;
+}
+
+.pattern-item h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.pattern-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.library-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 /* Title input styling */
@@ -48,7 +98,7 @@ body {
 }
 
 .output-column {
-    flex: 1;
+    flex: 0 0 400px;  /* Fixed width instead of flex: 1 */
     position: sticky;
     top: 20px;
     align-self: flex-start;
@@ -128,10 +178,12 @@ input[name^="string"]:focus {
     font-size: 14px;
     transition: background-color 0.3s;
     color: white;
+    text-align: center;
+    width: auto;  /* Remove fixed width */
+    min-width: 120px;  /* Add minimum width */
 }
 
 .action-button {
-    flex: 1;
     background-color: #4CAF50;
 }
 
@@ -140,10 +192,16 @@ input[name^="string"]:focus {
 }
 
 .secondary-button {
-    width: 100%;
     background-color: #6c757d;
 }
 
 .secondary-button:hover {
     background-color: #5a6268;
+}
+
+/* Specific overrides for import button */
+label[for="import-library"].secondary-button {
+    display: inline-block;
+    width: auto;
+    margin: 0;
 }
