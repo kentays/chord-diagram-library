@@ -1,69 +1,207 @@
+/* Base styles */
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    padding: 0;
+    margin: 0;
+    padding: 20px;
     background-color: #f4f4f4;
 }
 
-h1 {
-    text-align: center;
+/* Container and column layout */
+.container {
+    display: flex;
+    gap: 40px;
+    max-width: 1400px;  /* Increased from 1200px */
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#diagram-generation {
+    flex: 0 0 350px;  /* Reduced from 400px */
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Pattern library column */
+.patterns-library {
+    flex: 0 0 300px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.patterns-list {
+    flex: 1;
+    overflow-y: auto;
+    margin: 20px 0;
+    max-height: 500px;
+}
+
+.pattern-item {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pattern-item:hover {
+    background-color: #f8f9fa;
+    border-color: #4CAF50;
+}
+
+.pattern-item h4 {
+    margin: 0 0 10px 0;
     color: #333;
 }
 
-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    margin: 0 auto;
+.pattern-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 
-label {
-    display: block;
-    margin: 10px 0 5px;
+.library-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-input[type="text"],
-input[type="number"],
-select {
+/* Title input styling */
+#title {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #ccc;
     border-radius: 4px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-button {
-    background-color: #28a745;
-    color: white;
-    padding: 10px 15px;
+#title:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(74, 175, 80, 0.3);
+}
+
+#title::placeholder {
+    color: #999;
+    opacity: 0.8;
+}
+
+.output-column {
+    flex: 0 0 400px;  /* Fixed width instead of flex: 1 */
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+/* String input styling */
+.string-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.string-input-group:first-of-type {
+    margin-top: 20px;
+}
+
+.string-label {
+    flex: 0 0 70px;
+    color: #666;
+    font-size: 14px;
+    padding-right: 10px;
+}
+
+input[name^="string"] {
+    flex: 1;
+    width: calc(100% - 70px);
+    font-family: monospace;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+input[name^="string"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(74, 175, 80, 0.3);
+}
+
+/* Diagram output area */
+#result {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+    min-height: 200px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#result svg {
+    max-width: 100%;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+/* Button styling */
+.form-buttons {
+    margin-top: 20px;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-button,
+.secondary-button {
+    padding: 10px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    width: 100%;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    color: white;
+    text-align: center;
+    width: auto;  /* Remove fixed width */
+    min-width: 120px;  /* Add minimum width */
 }
 
-button:hover {
-    background-color: #218838;
+.action-button {
+    background-color: #4CAF50;
 }
 
-#result {
-    margin-top: 20px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.action-button:hover {
+    background-color: #45a049;
 }
 
-#scale-filters {
-    margin-top: 20px;
+.secondary-button {
+    background-color: #6c757d;
 }
 
-#saved-diagrams {
-    margin-top: 20px;
-    padding: 10px;
-    background: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.secondary-button:hover {
+    background-color: #5a6268;
+}
+
+/* Specific overrides for import button */
+label[for="import-library"].secondary-button {
+    display: inline-block;
+    width: auto;
+    margin: 0;
 }

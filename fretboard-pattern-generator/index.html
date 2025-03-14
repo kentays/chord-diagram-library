@@ -3,57 +3,78 @@
 <head>
     <title>Fretboard Pattern Generator</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Load jQuery first -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Load SVGuitar before your script -->
     <script src="https://omnibrain.github.io/svguitar/js/svguitar.umd.js"></script>
+    <!-- Load your script last -->
+    <script src="script.js"></script>
 </head>
 <body>
 
     <h1>Fretboard Pattern Generator</h1>
 
-    <form id="pattern-form">
-        <label for="title">Pattern Title:</label>
-        <input type="text" id="title" name="title" value="Fretboard Pattern"><br><br>
+    <div class="container">
+        <div class="column" id="diagram-generation">
+            <form id="pattern-form">
+                <h3>Pattern Title:</h3>
+                <input type="text" id="title" name="title" value="Fretboard Pattern"><br><br>
 
-        <label for="strings">Number of Strings:</label>
-        <input type="number" id="strings" name="strings" value="6" readonly><br><br>
+                <div id="note-inputs">
+                    <h3>Frets per String:</h3>
+                    <div class="string-notes" id="string1-notes">
+                        <label for="string1">String 1:</label>
+                        <input type="text" name="string1" placeholder="Enter fret numbers (e.g., 0, 2, 5)">
+                    </div>
+                    <div class="string-notes" id="string2-notes">
+                        <label for="string2">String 2:</label>
+                        <input type="text" name="string2" placeholder="Enter fret numbers (e.g., 0, 3, 5)">
+                    </div>
+                    <div class="string-notes" id="string3-notes">
+                        <label for="string3">String 3:</label>
+                        <input type="text" name="string3" placeholder="Enter fret numbers (e.g., 0, 2, 4)">
+                    </div>
+                    <div class="string-notes" id="string4-notes">
+                        <label for="string4">String 4:</label>
+                        <input type="text" name="string4" placeholder="Enter fret numbers (e.g., 0, 2, 5)">
+                    </div>
+                    <div class="string-notes" id="string5-notes">
+                        <label for="string5">String 5:</label>
+                        <input type="text" name="string5" placeholder="Enter fret numbers (e.g., 0, 3, 5)">
+                    </div>
+                    <div class="string-notes" id="string6-notes">
+                        <label for="string6">String 6:</label>
+                        <input type="text" name="string6" placeholder="Enter fret numbers (e.g., 0, 2, 3)">
+                    </div>
+                </div>
 
-        <div id="note-inputs">
-            <h3>Notes per String:</h3>
-            <div class="string-notes" id="string1-notes">
-                <label for="string1">String 1:</label>
-                <input type="text" name="string1" placeholder="Enter notes (e.g., E, G, B)">
-            </div>
-            <div class="string-notes" id="string2-notes">
-                <label for="string2">String 2:</label>
-                <input type="text" name="string2" placeholder="Enter notes (e.g., A, C, E)">
-            </div>
-            <div class="string-notes" id="string3-notes">
-                <label for="string3">String 3:</label>
-                <input type="text" name="string3" placeholder="Enter notes (e.g., D, F#, A)">
-            </div>
-            <div class="string-notes" id="string4-notes">
-                <label for="string4">String 4:</label>
-                <input type="text" name="string4" placeholder="Enter notes (e.g., G, B, D)">
-            </div>
-            <div class="string-notes" id="string5-notes">
-                <label for="string5">String 5:</label>
-                <input type="text" name="string5" placeholder="Enter notes (e.g., C, E, G)">
-            </div>
-            <div class="string-notes" id="string6-notes">
-                <label for="string6">String 6:</label>
-                <input type="text" name="string6" placeholder="Enter notes (e.g., E, A, C)">
+                <div class="form-buttons">
+                    <button type="button" id="clear-inputs" class="secondary-button">Clear All</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="column output-column">
+            <div id="result"></div>
+            <div class="download-buttons">
+                <button id="download-svg" class="action-button">Download SVG</button>
+                <button id="download-png" class="action-button">Download PNG</button>
             </div>
         </div>
-
-        <button type="submit">Generate Pattern</button>
-    </form>
-
-    <br>
-
-    <div id="result"></div>
-
-    <button id="download-pattern">Download Pattern</button>
+        
+        <div class="column patterns-library">
+            <h3>Pattern Library</h3>
+            <div class="patterns-list" id="patterns-list">
+                <!-- Patterns will be added here dynamically -->
+            </div>
+            <div class="library-buttons">
+                <button id="save-pattern" class="action-button">Save Current Pattern</button>
+                <button id="export-library" class="secondary-button">Export Library</button>
+                <input type="file" id="import-library" accept=".json" style="display: none;">
+                <label for="import-library" class="secondary-button">Import Library</label>
+            </div>
+        </div>
+    </div>
     
-    <script src="script.js"></script>
 </body>
 </html>
