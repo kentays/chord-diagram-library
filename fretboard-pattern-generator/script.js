@@ -46,10 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear previous SVG content
             resultDiv.innerHTML = '';
 
-            // Find the highest fret number, use minimum of 5 frets if no frets specified
+            // Find the highest fret number, considering both plain numbers and objects
             const maxFret = Math.max(
                 5,
-                ...frets.flat().filter(f => !isNaN(f))
+                ...frets.flat().map(f => {
+                    if (typeof f === 'object' && f.fret !== undefined) {
+                        return f.fret;
+                    }
+                    return f;
+                }).filter(f => !isNaN(f))
             ) + 1;
 
             // Create new SVGuitar instance
@@ -66,12 +71,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 fretSpace: 2,
                 stringSpace: 2,
                 showTuning: false,
-                orientation: 'horizontal'
+                orientation: 'horizontal',
+                fontSize: 12,  // Add font size for text
+                textColor: '#000000'  // Add text color
             });
 
-            // Set the chord with positions (or empty array if no frets)
+            // Convert fret positions to chord positions array with colors and text
             const positions = frets.flatMap((stringFrets, stringIndex) => 
-                stringFrets.map(fret => [stringIndex + 1, fret])
+                stringFrets.map(fret => {
+                    // Check if fret is an object with properties
+                    if (typeof fret === 'object') {
+                        const props = {};
+                        if (fret.color) props.color = fret.color;
+                        if (fret.text) props.text = fret.text;
+                        return [stringIndex + 1, fret.fret, props];
+                    }
+                    // Default to just the fret number if no properties
+                    return [stringIndex + 1, fret];
+                })
                 .filter(([_, fret]) => !isNaN(fret))
             );
 
@@ -144,12 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 1; i <= 6; i++) {
             const input = document.querySelector(`input[name="string${i}"]`);
             if (input) {
-                input.placeholder = "Enter frets (space to separate)";
+                input.placeholder = "Enter frets (e.g., 0:red 2:blue 4)";
                 
-                // Add input event listener for real-time updates
-                input.addEventListener('input', debounce(function() {
+                // Add input event listener for real-time updates including colors
+                input.addEventListener('input', debounce(function(e) {
                     updateDiagram();
-                }, 300)); // 300ms delay to prevent too frequent updates
+                }, 200)); // Reduced delay for more responsive color updates
             }
         }
     }
@@ -170,13 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update diagram in real-time
     function updateDiagram() {
         const frets = [];
-        // Collect all fret values
+        // Collect all fret values with colors
         for (let i = 1; i <= 6; i++) {
             const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-            frets.push(fretInput.split(/[,\s]+/)
-                .filter(n => n !== '' && /^\d+$/.test(n))
-                .map(fret => parseInt(fret.trim()))
-            );
+            const parsedFrets = parseFretInput(fretInput);
+            frets.push(parsedFrets);
         }
         
         // Only generate if we have valid fret numbers
@@ -199,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const frets = [];
             for (let i = 1; i <= 6; i++) {
                 const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-                frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+                frets.push(parseFretInput(fretInput));
             }
             downloadPattern(title, frets, 'svg');
         });
@@ -209,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const frets = [];
             for (let i = 1; i <= 6; i++) {
                 const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-                frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+                frets.push(parseFretInput(fretInput));
             }
             downloadPattern(title, frets, 'png');
         });
@@ -251,10 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const frets = [];
         for (let i = 1; i <= 6; i++) {
             const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-            frets.push(fretInput.split(/[,\s]+/)
-                .filter(n => n !== '' && /^\d+$/.test(n))
-                .map(fret => parseInt(fret.trim()))
-            );
+            frets.push(parseFretInput(fretInput));
         }
 
         const pattern = { title, frets };
@@ -299,7 +311,17 @@ document.addEventListener('DOMContentLoaded', function() {
         pattern.frets.forEach((frets, index) => {
             const input = document.querySelector(`input[name="string${index + 1}"]`);
             if (input) {
-                input.value = frets.join(', ');
+                // Convert fret objects to properly formatted strings
+                const fretStrings = frets.map(fret => {
+                    if (typeof fret === 'object') {
+                        let result = fret.fret.toString();
+                        if (fret.color) result += ':' + fret.color;
+                        if (fret.text) result += '::' + fret.text;
+                        return result;
+                    }
+                    return fret.toString();
+                });
+                input.value = fretStrings.join(', ');
             }
         });
         generateFretboardPattern(pattern.title, pattern.frets);
@@ -345,3 +367,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add this line at the end of your DOMContentLoaded event listener
     setupPatternLibrary();
 });
+
+function parseFretInput(input) {
+    return input.split(/[,\s]+/)
+        .filter(n => n !== '')
+        .map(fret => {
+            // Split by double colon first to handle text notation (fret::text)
+            const [numberPart, text] = fret.split('::');
+            
+            // Then split the first part by single colon to handle potential color
+            const [number, color] = numberPart.split(':');
+            
+            if (!isNaN(number)) {
+                const result = { fret: parseInt(number) };
+                
+                // Add color if present
+                if (color) {
+                    result.color = color.trim();
+                }
+                
+                // Add text if present
+                if (text) {
+                    result.text = text.trim();
+                }
+                
+                return result;
+            }
+            return parseInt(fret);
+        })
+        .filter(fret => !isNaN(fret.fret || fret));
+}
