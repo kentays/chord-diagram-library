@@ -46,10 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear previous SVG content
             resultDiv.innerHTML = '';
 
-            // Find the highest fret number, use minimum of 5 frets if no frets specified
+            // Find the highest fret number, considering both plain numbers and objects
             const maxFret = Math.max(
                 5,
-                ...frets.flat().filter(f => !isNaN(f))
+                ...frets.flat().map(f => {
+                    if (typeof f === 'object' && f.fret !== undefined) {
+                        return f.fret;
+                    }
+                    return f;
+                }).filter(f => !isNaN(f))
             ) + 1;
 
             // Create new SVGuitar instance
@@ -66,12 +71,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 fretSpace: 2,
                 stringSpace: 2,
                 showTuning: false,
-                orientation: 'horizontal'
+                orientation: 'horizontal',
+                fontSize: 12,  // Add font size for text
+                textColor: '#000000'  // Add text color
             });
 
-            // Set the chord with positions (or empty array if no frets)
+            // Convert fret positions to chord positions array with colors and text
             const positions = frets.flatMap((stringFrets, stringIndex) => 
-                stringFrets.map(fret => [stringIndex + 1, fret])
+                stringFrets.map(fret => {
+                    // Check if fret is an object with properties
+                    if (typeof fret === 'object') {
+                        const props = {};
+                        if (fret.color) props.color = fret.color;
+                        if (fret.text) props.text = fret.text;
+                        return [stringIndex + 1, fret.fret, props];
+                    }
+                    // Default to just the fret number if no properties
+                    return [stringIndex + 1, fret];
+                })
                 .filter(([_, fret]) => !isNaN(fret))
             );
 
@@ -144,12 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let i = 1; i <= 6; i++) {
             const input = document.querySelector(`input[name="string${i}"]`);
             if (input) {
-                input.placeholder = "Enter frets (space to separate)";
+                input.placeholder = "Enter frets (e.g., 0:red 2:blue 4)";
                 
-                // Add input event listener for real-time updates
-                input.addEventListener('input', debounce(function() {
+                // Add input event listener for real-time updates including colors
+                input.addEventListener('input', debounce(function(e) {
                     updateDiagram();
-                }, 300)); // 300ms delay to prevent too frequent updates
+                }, 200)); // Reduced delay for more responsive color updates
             }
         }
     }
@@ -170,13 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update diagram in real-time
     function updateDiagram() {
         const frets = [];
-        // Collect all fret values
+        // Collect all fret values with colors
         for (let i = 1; i <= 6; i++) {
             const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-            frets.push(fretInput.split(/[,\s]+/)
-                .filter(n => n !== '' && /^\d+$/.test(n))
-                .map(fret => parseInt(fret.trim()))
-            );
+            const parsedFrets = parseFretInput(fretInput);
+            frets.push(parsedFrets);
         }
         
         // Only generate if we have valid fret numbers
@@ -199,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const frets = [];
             for (let i = 1; i <= 6; i++) {
                 const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-                frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+                frets.push(parseFretInput(fretInput));
             }
             downloadPattern(title, frets, 'svg');
         });
@@ -209,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const frets = [];
             for (let i = 1; i <= 6; i++) {
                 const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-                frets.push(fretInput.split(',').map(fret => parseInt(fret.trim())));
+                frets.push(parseFretInput(fretInput));
             }
             downloadPattern(title, frets, 'png');
         });
@@ -248,50 +263,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveCurrentPattern() {
         const title = document.getElementById('title').value || 'Untitled Pattern';
+        const tagInput = document.getElementById('pattern-tags');
+        const tags = tagInput.value.split(',')
+            .map(tag => tag.trim().toLowerCase())
+            .filter(tag => tag !== '');
+        
         const frets = [];
         for (let i = 1; i <= 6; i++) {
             const fretInput = document.querySelector(`input[name="string${i}"]`).value;
-            frets.push(fretInput.split(/[,\s]+/)
-                .filter(n => n !== '' && /^\d+$/.test(n))
-                .map(fret => parseInt(fret.trim()))
-            );
+            frets.push(parseFretInput(fretInput));
         }
 
-        const pattern = { title, frets };
+        const pattern = { title, frets, tags };
         const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         savedPatterns.push(pattern);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPatterns));
-        loadSavedPatterns(); // Refresh the list
+        
+        // Clear tag input
+        tagInput.value = '';
+        
+        loadSavedPatterns();
     }
 
     function loadSavedPatterns() {
-        const patternsList = document.getElementById('patterns-list');
+        const patternsOrganized = document.getElementById('patterns-organized');
         const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         
-        patternsList.innerHTML = savedPatterns.map((pattern, index) => `
-            <div class="pattern-item" data-index="${index}">
-                <h4>${pattern.title}</h4>
-                <div class="pattern-actions">
-                    <button class="secondary-button load-pattern">Load</button>
-                    <button class="secondary-button delete-pattern">Delete</button>
-                </div>
-            </div>
-        `).join('');
-
-        // Add event listeners for load and delete buttons
-        patternsList.querySelectorAll('.load-pattern').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = e.target.closest('.pattern-item').dataset.index;
-                loadPattern(savedPatterns[index]);
-            });
+        // Collect all unique tags
+        const allTags = new Set();
+        savedPatterns.forEach(pattern => {
+            if (pattern.tags) {
+                pattern.tags.forEach(tag => allTags.add(tag));
+            }
         });
-
-        patternsList.querySelectorAll('.delete-pattern').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = e.target.closest('.pattern-item').dataset.index;
-                deletePattern(index);
-            });
-        });
+        
+        // Update available tags
+        updateAvailableTags(Array.from(allTags));
+        
+        // Generate HTML for patterns list
+        patternsOrganized.innerHTML = savedPatterns.map((pattern, index) => 
+            updatePatternDisplay(pattern, index)
+        ).join('');
+        
+        // Add event listeners for pattern actions
+        setupPatternEventListeners(savedPatterns);
     }
 
     function loadPattern(pattern) {
@@ -299,7 +314,17 @@ document.addEventListener('DOMContentLoaded', function() {
         pattern.frets.forEach((frets, index) => {
             const input = document.querySelector(`input[name="string${index + 1}"]`);
             if (input) {
-                input.value = frets.join(', ');
+                // Convert fret objects to properly formatted strings
+                const fretStrings = frets.map(fret => {
+                    if (typeof fret === 'object') {
+                        let result = fret.fret.toString();
+                        if (fret.color) result += ':' + fret.color;
+                        if (fret.text) result += '::' + fret.text;
+                        return result;
+                    }
+                    return fret.toString();
+                });
+                input.value = fretStrings.join(', ');
             }
         });
         generateFretboardPattern(pattern.title, pattern.frets);
@@ -340,8 +365,137 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function updateAvailableTags(tags) {
+        const tagsContainer = document.getElementById('available-tags');
+        tagsContainer.innerHTML = tags.map(tag => 
+            `<span class="tag-badge" data-tag="${tag}">${tag}</span>`
+        ).join('');
+        
+        // Add click handlers for tag filtering
+        document.querySelectorAll('.tag-badge').forEach(badge => {
+            badge.addEventListener('click', () => {
+                badge.classList.toggle('selected');
+                filterPatternsByTags();
+            });
+        });
+    }
+
+    function filterPatternsByTags() {
+        const selectedTags = Array.from(document.querySelectorAll('.tag-badge.selected'))
+            .map(badge => badge.dataset.tag);
+        
+        document.querySelectorAll('.pattern-item').forEach(pattern => {
+            const patternTags = (pattern.dataset.tags || '').split(',').filter(tag => tag);
+            if (selectedTags.length === 0 || selectedTags.some(tag => patternTags.includes(tag))) {
+                pattern.style.display = 'block';
+            } else {
+                pattern.style.display = 'none';
+            }
+        });
+    }
+
+    function updatePatternDisplay(pattern, index) {
+        return `
+            <div class="pattern-item" data-index="${index}" data-tags="${pattern.tags ? pattern.tags.join(',') : ''}">
+                <h4>${pattern.title}</h4>
+                <div class="pattern-tags">
+                    ${pattern.tags ? pattern.tags.map(tag => 
+                        `<span class="tag-badge">${tag}</span>`
+                    ).join('') : ''}
+                </div>
+                <div class="pattern-actions">
+                    <button class="secondary-button edit-tags">Edit Tags</button>
+                    <button class="secondary-button load-pattern">Load</button>
+                    <button class="secondary-button delete-pattern">Delete</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function setupPatternEventListeners(savedPatterns) {
+        // Load pattern button
+        document.querySelectorAll('.load-pattern').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.closest('.pattern-item').dataset.index);
+                loadPattern(savedPatterns[index]);
+            });
+        });
+
+        // Delete pattern button
+        document.querySelectorAll('.delete-pattern').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.closest('.pattern-item').dataset.index);
+                deletePattern(index);
+            });
+        });
+
+        // Edit tags button
+        document.querySelectorAll('.edit-tags').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const patternItem = e.target.closest('.pattern-item');
+                const index = parseInt(patternItem.dataset.index);
+                setupTagEditing(index, savedPatterns[index]);
+            });
+        });
+    }
+
+    function setupTagEditing(index, pattern) {
+        // Show tag input with current tags
+        const tagInput = document.getElementById('pattern-tags');
+        tagInput.value = pattern.tags ? pattern.tags.join(', ') : '';
+        tagInput.dataset.editIndex = index;
+        tagInput.focus();
+        
+        // Setup save button handler
+        document.getElementById('save-tags').onclick = () => {
+            const newTags = tagInput.value.split(',')
+                .map(tag => tag.trim().toLowerCase())
+                .filter(tag => tag !== '');
+            
+            const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            savedPatterns[index].tags = newTags;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPatterns));
+            
+            // Clear editing state
+            tagInput.value = '';
+            delete tagInput.dataset.editIndex;
+            
+            loadSavedPatterns();
+        };
+    }
+
     setupFretInputs();
     setupDownloadButtons();
     // Add this line at the end of your DOMContentLoaded event listener
     setupPatternLibrary();
 });
+
+function parseFretInput(input) {
+    return input.split(/[,\s]+/)
+        .filter(n => n !== '')
+        .map(fret => {
+            // Split by double colon first to handle text notation (fret::text)
+            const [numberPart, text] = fret.split('::');
+            
+            // Then split the first part by single colon to handle potential color
+            const [number, color] = numberPart.split(':');
+            
+            if (!isNaN(number)) {
+                const result = { fret: parseInt(number) };
+                
+                // Add color if present
+                if (color) {
+                    result.color = color.trim();
+                }
+                
+                // Add text if present
+                if (text) {
+                    result.text = text.trim();
+                }
+                
+                return result;
+            }
+            return parseInt(fret);
+        })
+        .filter(fret => !isNaN(fret.fret || fret));
+}

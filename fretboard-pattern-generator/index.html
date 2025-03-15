@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fretboard Pattern Generator</title>
+    <title>Fretboard Pattern Library</title>
     <link rel="stylesheet" href="style.css">
     <!-- Load jQuery first -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -12,7 +12,12 @@
 </head>
 <body>
 
-    <h1>Fretboard Pattern Generator</h1>
+<header>
+    <nav class="main-nav">
+        <a href="../index.html" class="nav-link">Chord Diagrams</a>
+        <a href="index.html" class="nav-link active">Fretboard Patterns</a>
+    </nav>
+</header>
 
     <div class="container">
         <div class="column" id="diagram-generation">
@@ -64,11 +69,27 @@
         
         <div class="column patterns-library">
             <h3>Pattern Library</h3>
-            <div class="patterns-list" id="patterns-list">
-                <!-- Patterns will be added here dynamically -->
+            
+            <!-- Tag management interface -->
+            <div class="tag-management">
+                <div class="tag-input-group">
+                    <input type="text" id="pattern-tags" 
+                           placeholder="Add tags (comma separated)" 
+                           class="tag-input">
+                    <button id="save-tags" class="secondary-button">Save Tags</button>
+                </div>
+                <div id="available-tags" class="available-tags">
+                    <!-- Tags will be added here dynamically -->
+                </div>
             </div>
+
+            <!-- Patterns list -->
+            <div class="patterns-organized" id="patterns-organized">
+                <!-- Pattern groups will be added here dynamically -->
+            </div>
+
             <div class="library-buttons">
-                <button id="save-pattern" class="action-button">Save Current Pattern</button>
+                <button id="save-pattern" class="action-button">Save Pattern</button>
                 <button id="export-library" class="secondary-button">Export Library</button>
                 <input type="file" id="import-library" accept=".json" style="display: none;">
                 <label for="import-library" class="secondary-button">Import Library</label>
