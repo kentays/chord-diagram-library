@@ -37,7 +37,7 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
-    padding: 0;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -51,7 +51,7 @@ h1 {
 .container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: flex-start;
     width: 100%;
     max-width: 1200px; /* Adjusted to fit a standard laptop window */
     margin-top: 20px;
@@ -571,4 +571,38 @@ input[type="file"] {
 /* Hide file input */
 input[type="file"] {
     display: none;
+}
+
+/* Header and Navigation */
+header {
+    align-self: flex-start;
+    background: #fff;
+    padding: 15px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-link {
+    padding: 8px 16px;
+    color: #666;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: #f4f4f4;
+    color: #333;
+}
+
+.nav-link.active {
+    background: #4CAF50;
+    color: white;
 }

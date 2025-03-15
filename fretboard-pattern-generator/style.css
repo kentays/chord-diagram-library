@@ -6,6 +6,39 @@ body {
     background-color: #f4f4f4;
 }
 
+/* Header and Navigation */
+header {
+    background: #fff;
+    padding: 15px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.main-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-link {
+    padding: 8px 16px;
+    color: #666;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: #f4f4f4;
+    color: #333;
+}
+
+.nav-link.active {
+    background: #4CAF50;
+    color: white;
+}
+
 /* Container and column layout */
 .container {
     display: flex;
@@ -42,23 +75,39 @@ body {
     max-height: 500px;
 }
 
+.patterns-organized {
+    max-height: 600px;
+    overflow-y: auto;
+    margin: 20px 0;
+    padding-right: 10px;
+}
+
 .pattern-item {
+    background: #fff;
     padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 4px;
     margin-bottom: 10px;
-    cursor: pointer;
+    border: 1px solid #eee;
+    border-radius: 8px;
     transition: all 0.3s ease;
 }
 
 .pattern-item:hover {
-    background-color: #f8f9fa;
     border-color: #4CAF50;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .pattern-item h4 {
     margin: 0 0 10px 0;
     color: #333;
+}
+
+.pattern-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 10px 0;
+    font-size: 12px;
+    color: #666;
 }
 
 .pattern-actions {
@@ -204,4 +253,115 @@ label[for="import-library"].secondary-button {
     display: inline-block;
     width: auto;
     margin: 0;
+}
+
+/* Tag styling */
+.tag-input {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.tag-filter {
+    margin: 15px 0;
+}
+
+.available-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.tag-badge {
+    background: #e9ecef;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tag-badge:hover {
+    background: #dee2e6;
+}
+
+.tag-badge.selected {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Pattern group styling */
+.pattern-group {
+    margin: 15px 0;
+}
+
+.pattern-group-header {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pattern-group-header:hover {
+    background: #e9ecef;
+}
+
+.pattern-group-content {
+    padding: 10px 0;
+    display: none;
+}
+
+.pattern-group-content.show {
+    display: block;
+}
+
+.tag-management {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.tag-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tag-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.available-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag-badge {
+    background: #e9ecef;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tag-badge:hover {
+    background: #dee2e6;
+}
+
+.tag-badge.selected {
+    background: #4CAF50;
+    color: white;
 }

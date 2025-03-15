@@ -263,47 +263,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveCurrentPattern() {
         const title = document.getElementById('title').value || 'Untitled Pattern';
+        const tagInput = document.getElementById('pattern-tags');
+        const tags = tagInput.value.split(',')
+            .map(tag => tag.trim().toLowerCase())
+            .filter(tag => tag !== '');
+        
         const frets = [];
         for (let i = 1; i <= 6; i++) {
             const fretInput = document.querySelector(`input[name="string${i}"]`).value;
             frets.push(parseFretInput(fretInput));
         }
 
-        const pattern = { title, frets };
+        const pattern = { title, frets, tags };
         const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         savedPatterns.push(pattern);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPatterns));
-        loadSavedPatterns(); // Refresh the list
+        
+        // Clear tag input
+        tagInput.value = '';
+        
+        loadSavedPatterns();
     }
 
     function loadSavedPatterns() {
-        const patternsList = document.getElementById('patterns-list');
+        const patternsOrganized = document.getElementById('patterns-organized');
         const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         
-        patternsList.innerHTML = savedPatterns.map((pattern, index) => `
-            <div class="pattern-item" data-index="${index}">
-                <h4>${pattern.title}</h4>
-                <div class="pattern-actions">
-                    <button class="secondary-button load-pattern">Load</button>
-                    <button class="secondary-button delete-pattern">Delete</button>
-                </div>
-            </div>
-        `).join('');
-
-        // Add event listeners for load and delete buttons
-        patternsList.querySelectorAll('.load-pattern').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = e.target.closest('.pattern-item').dataset.index;
-                loadPattern(savedPatterns[index]);
-            });
+        // Collect all unique tags
+        const allTags = new Set();
+        savedPatterns.forEach(pattern => {
+            if (pattern.tags) {
+                pattern.tags.forEach(tag => allTags.add(tag));
+            }
         });
-
-        patternsList.querySelectorAll('.delete-pattern').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const index = e.target.closest('.pattern-item').dataset.index;
-                deletePattern(index);
-            });
-        });
+        
+        // Update available tags
+        updateAvailableTags(Array.from(allTags));
+        
+        // Generate HTML for patterns list
+        patternsOrganized.innerHTML = savedPatterns.map((pattern, index) => 
+            updatePatternDisplay(pattern, index)
+        ).join('');
+        
+        // Add event listeners for pattern actions
+        setupPatternEventListeners(savedPatterns);
     }
 
     function loadPattern(pattern) {
@@ -360,6 +363,105 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             reader.readAsText(file);
         }
+    }
+
+    function updateAvailableTags(tags) {
+        const tagsContainer = document.getElementById('available-tags');
+        tagsContainer.innerHTML = tags.map(tag => 
+            `<span class="tag-badge" data-tag="${tag}">${tag}</span>`
+        ).join('');
+        
+        // Add click handlers for tag filtering
+        document.querySelectorAll('.tag-badge').forEach(badge => {
+            badge.addEventListener('click', () => {
+                badge.classList.toggle('selected');
+                filterPatternsByTags();
+            });
+        });
+    }
+
+    function filterPatternsByTags() {
+        const selectedTags = Array.from(document.querySelectorAll('.tag-badge.selected'))
+            .map(badge => badge.dataset.tag);
+        
+        document.querySelectorAll('.pattern-item').forEach(pattern => {
+            const patternTags = (pattern.dataset.tags || '').split(',').filter(tag => tag);
+            if (selectedTags.length === 0 || selectedTags.some(tag => patternTags.includes(tag))) {
+                pattern.style.display = 'block';
+            } else {
+                pattern.style.display = 'none';
+            }
+        });
+    }
+
+    function updatePatternDisplay(pattern, index) {
+        return `
+            <div class="pattern-item" data-index="${index}" data-tags="${pattern.tags ? pattern.tags.join(',') : ''}">
+                <h4>${pattern.title}</h4>
+                <div class="pattern-tags">
+                    ${pattern.tags ? pattern.tags.map(tag => 
+                        `<span class="tag-badge">${tag}</span>`
+                    ).join('') : ''}
+                </div>
+                <div class="pattern-actions">
+                    <button class="secondary-button edit-tags">Edit Tags</button>
+                    <button class="secondary-button load-pattern">Load</button>
+                    <button class="secondary-button delete-pattern">Delete</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function setupPatternEventListeners(savedPatterns) {
+        // Load pattern button
+        document.querySelectorAll('.load-pattern').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.closest('.pattern-item').dataset.index);
+                loadPattern(savedPatterns[index]);
+            });
+        });
+
+        // Delete pattern button
+        document.querySelectorAll('.delete-pattern').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.closest('.pattern-item').dataset.index);
+                deletePattern(index);
+            });
+        });
+
+        // Edit tags button
+        document.querySelectorAll('.edit-tags').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const patternItem = e.target.closest('.pattern-item');
+                const index = parseInt(patternItem.dataset.index);
+                setupTagEditing(index, savedPatterns[index]);
+            });
+        });
+    }
+
+    function setupTagEditing(index, pattern) {
+        // Show tag input with current tags
+        const tagInput = document.getElementById('pattern-tags');
+        tagInput.value = pattern.tags ? pattern.tags.join(', ') : '';
+        tagInput.dataset.editIndex = index;
+        tagInput.focus();
+        
+        // Setup save button handler
+        document.getElementById('save-tags').onclick = () => {
+            const newTags = tagInput.value.split(',')
+                .map(tag => tag.trim().toLowerCase())
+                .filter(tag => tag !== '');
+            
+            const savedPatterns = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            savedPatterns[index].tags = newTags;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPatterns));
+            
+            // Clear editing state
+            tagInput.value = '';
+            delete tagInput.dataset.editIndex;
+            
+            loadSavedPatterns();
+        };
     }
 
     setupFretInputs();
