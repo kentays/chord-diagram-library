@@ -67,7 +67,7 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     flex: 1;
-    min-width: 200px;
+    min-width: 230px;
     max-width: 600px; /* Limit maximum width to fit a standard laptop window */
 }
 
@@ -237,36 +237,13 @@ button:hover {
     background-color: #e0ffe0;
 }
 
-.chord-form-container {
-    width: 100%; /* Ensure it fits within the column */
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0;
-    background: none;
-    box-shadow: none;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* Change to single column */
-    gap: 15px;
-    margin-bottom: 20px;
-    max-width: 600px; /* Limit width for better readability */
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-}
-
+/* Update the grid layout for the string inputs */
 .string-input {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 80px 70px 90px 70px;  /* Adjusted column widths */
     gap: 10px;
     align-items: center;
-    padding: 10px;
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
+    margin-bottom: 8px;
 }
 
 .string-input.modified {
@@ -282,13 +259,11 @@ button:hover {
 }
 
 select {
-    width: auto; /* Allow dropdowns to size automatically */
-    padding: 8px;
+    width: 100%;
+    padding: 4px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: white;
-    margin-right: 10px; /* Add space between dropdowns */
-    cursor: pointer;
 }
 
 select:last-child {
@@ -325,9 +300,15 @@ string-input select:nth-child(3) {
 }
 
 .form-group label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    width: auto;
+    margin: 0;
 }
 
 .form-group input {
@@ -418,18 +399,20 @@ string-input select:nth-child(3) {
     background-color: #ff3333;
 }
 
+/* Adjust the generation header to match */
 .generation-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 80px 70px 90px 70px;  /* Match string-input columns */
     gap: 10px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
     margin-bottom: 10px;
-    width: 100%;
+    font-weight: bold;
 }
 
-/* Update button container styling */
+.chord-form-container {
+    min-width: 360px;  /* Minimum width to fit all columns */
+    max-width: 400px;  /* Maximum width for readability */
+}
+
 .buttons-container {
     display: flex;
     flex-direction: column;
@@ -605,4 +588,44 @@ header {
 .nav-link.active {
     background: #4CAF50;
     color: white;
+}
+
+.diagram-options {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.diagram-options h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2em;
+}
+/* Update the existing toggle styles to include orientation-toggle */
+.display-toggle,
+.position-toggle,
+.orientation-toggle {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.display-toggle label,
+.position-toggle label,
+.orientation-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    margin: 8px 0;
+}
+
+.display-toggle input[type="radio"],
+.position-toggle input[type="radio"],
+.orientation-toggle input[type="radio"] {
+    margin: 0;
 }

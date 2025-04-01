@@ -29,44 +29,52 @@
                                    value="Chord Name" 
                                    class="required-field"
                                    placeholder="Enter chord name">
+                            
                         </div>
                     </div>
-
+                    
                     <div class="form-grid">
                         <div class="generation-header">
                             <div class="header-cell">String</div>
                             <div class="header-cell">Fret</div>
                             <div class="header-cell">Interval</div>
+                            <div class="header-cell">Fingering</div>
                         </div>
                         <div class="string-input">
                             <label class="string-label">1 (E)</label>
                             <select id="string1" name="string1"></select>
                             <select id="string1-text" name="string1-text"></select>
+                            <select id="string1-finger" name="string1-finger"></select>
                         </div>
                         <div class="string-input">
                             <label class="string-label">2 (B)</label>
                             <select id="string2" name="string2"></select>
                             <select id="string2-text" name="string2-text"></select>
+                            <select id="string2-finger" name="string2-finger"></select>
                         </div>
                         <div class="string-input">
                             <label class="string-label">3 (G)</label>
                             <select id="string3" name="string3"></select>
                             <select id="string3-text" name="string3-text"></select>
+                            <select id="string3-finger" name="string3-finger"></select>
                         </div>
                         <div class="string-input">
                             <label class="string-label">4 (D)</label>
                             <select id="string4" name="string4"></select>
                             <select id="string4-text" name="string4-text"></select>
+                            <select id="string4-finger" name="string4-finger"></select>
                         </div>
                         <div class="string-input">
                             <label class="string-label">5 (A)</label>
                             <select id="string5" name="string5"></select>
                             <select id="string5-text" name="string5-text"></select>
+                            <select id="string5-finger" name="string5-finger"></select>
                         </div>
                         <div class="string-input">
                             <label class="string-label">6 (E)</label>
                             <select id="string6" name="string6"></select>
                             <select id="string6-text" name="string6-text"></select>
+                            <select id="string6-finger" name="string6-finger"></select>
                         </div>
                     </div>
 
@@ -78,7 +86,7 @@
         <div class="column" id="diagram-output">
             <h3 id="chord-name">Chord Diagram</h3>
             <div id="result"></div>  
-            <button id="download-all-diagrams">Download All Diagrams</button>
+            <button id="download-all-diagrams">Download Diagrams</button>
         </div>
 
         <div class="column" id="scale-filters">

@@ -50,8 +50,6 @@ $(document).ready(function() {
         // Set the chord name at the top of the diagram column
         $("#chord-name").text(settings.title);
 
-        console.log('Generating diagrams for string sets:', stringSets); // Log the string sets being processed
-
         stringSets.forEach((set, index) => {
             const diagramContainer = $("<div>").attr("id", `result-${index}`).css("display", "inline-block");
             resultContainer.append(diagramContainer);
@@ -59,16 +57,19 @@ $(document).ready(function() {
             // Calculate the highest fret used in the chord
             const highestFret = Math.max(...set.fingers.filter(f => f[1] !== 'x').map(f => f[1]), 5);
 
-            // Adjust the settings to set the number of frets based on the highest fret
-            const adjustedSettings = { ...settings, frets: Math.max(highestFret, 5), title: '', orientation: 'horizontal' };
+            // Include orientation in adjustedSettings
+            const adjustedSettings = {
+                ...settings,
+                frets: Math.max(highestFret, 5),
+                title: '',
+                orientation: $('input[name="orientation-mode"]:checked').val() // Get current orientation
+            };
 
             const chart = new svguitar.SVGuitarChord(`#result-${index}`);
             chart.configure(adjustedSettings).chord(set).draw();
-
-            console.log(`Generated diagram for set ${index}:`, set); // Log each generated diagram
         });
 
-        addDownloadButtons(currentSettings); // Add download buttons after generating diagrams
+        addDownloadButtons(currentSettings);
     }
 
     function determineScales(degrees) {
@@ -82,12 +83,12 @@ $(document).ready(function() {
     }
 
     function calculateStringSets(chord) {
-        const tuningOffsets = [0, 5, 9, 14, 19, 24]; // Cumulative intervals between strings in semitones (EADGBE tuning)
+        const allowOpenStrings = $('input[name="position-mode"]:checked').val() === 'open';
+        const tuningOffsets = [0, 5, 9, 14, 19, 24];
         const maxString = Math.max(...chord.fingers.filter(f => f[1] !== 'x').map(f => f[0]));
         const minString = Math.min(...chord.fingers.filter(f => f[1] !== 'x').map(f => f[0]));
         const stringRange = maxString - minString + 1;
         const noteCount = chord.fingers.filter(f => f[1] !== 'x').length;
-        console.log('String range:', stringRange); // Print the string range for debugging
         const possibleSets = [];
 
         // Generate string sets by shifting down
@@ -98,7 +99,6 @@ $(document).ready(function() {
                     return null;
                 }
                 let fretOffset = tuningOffsets[newString - 1] - tuningOffsets[f[0] - 1];
-                // Adjust fret offset only when crossing from 2nd to 3rd string or vice versa
                 if ((f[0] === 2 && newString === 3) || (f[0] === 3 && newString === 2)) {
                     fretOffset += (f[0] === 2 && newString === 3) ? 0 : 1;
                 }
@@ -106,12 +106,22 @@ $(document).ready(function() {
                 return [newString, newFret, f[2]];
             }).filter(f => f !== null);
 
-            // Ensure no zero frets and shift all fingers so that the lowest fret is on the 1st fret
-            const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
-            const adjustedSet = newSet.map(f => {
-                if (f[1] === 'x') return f;
-                return [f[0], f[1] - minFret + 1, f[2]];
-            });
+            let adjustedSet;
+            if (allowOpenStrings) {
+                // When allowing open strings, shift everything down so lowest fret becomes 0
+                const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
+                adjustedSet = newSet.map(f => {
+                    if (f[1] === 'x') return f;
+                    return [f[0], f[1] - minFret, f[2]]; // Subtract minFret to make lowest note 0
+                });
+            } else {
+                // Original behavior: shift everything so lowest fret becomes 1
+                const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
+                adjustedSet = newSet.map(f => {
+                    if (f[1] === 'x') return f;
+                    return [f[0], f[1] - minFret + 1, f[2]]; // Add 1 to start at fret 1
+                });
+            }
 
             // Mark any unused strings as 'x'
             for (let j = 1; j <= 6; j++) {
@@ -134,7 +144,6 @@ $(document).ready(function() {
                     return null;
                 }
                 let fretOffset = tuningOffsets[newString - 1] - tuningOffsets[f[0] - 1];
-                // Adjust fret offset only when crossing from 2nd to 3rd string or vice versa
                 if ((f[0] === 2 && newString === 3) || (f[0] === 3 && newString === 2)) {
                     fretOffset += (f[0] === 2 && newString === 3) ? 0 : 0;
                 }
@@ -142,33 +151,38 @@ $(document).ready(function() {
                 return [newString, newFret, f[2]];
             }).filter(f => f !== null);
 
-            // Ensure no zero frets and shift all fingers so that the lowest fret is on the 1st fret
-            const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
-            const adjustedSet = newSet.map(f => {
-                if (f[1] === 'x') return f;
-                return [f[0], f[1] - minFret + 1, f[2]];
-            });
+            let adjustedSet;
+            if (allowOpenStrings) {
+                const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
+                adjustedSet = newSet.map(f => {
+                    if (f[1] === 'x') return f;
+                    return [f[0], f[1] - minFret, f[2]];
+                });
+            } else {
+                const minFret = Math.min(...newSet.filter(f => f[1] !== 'x').map(f => f[1]));
+                adjustedSet = newSet.map(f => {
+                    if (f[1] === 'x') return f;
+                    return [f[0], f[1] - minFret + 1, f[2]];
+                });
+            }
 
-            // Mark any unused strings as 'x'
             for (let j = 1; j <= 6; j++) {
                 if (!adjustedSet.some(f => f[0] === j)) {
                     adjustedSet.push([j, 'x']);
                 }
             }
 
-            // Ensure the new set has at least the same number of notes as the original chord
             if (adjustedSet.filter(f => f[1] !== 'x').length >= noteCount) {
                 possibleSets.push({ fingers: adjustedSet, barres: chord.barres });
             }
         }
 
-        // Print the strings that the possible string sets will be on
         possibleSets.forEach((set, index) => {
             const strings = set.fingers.map(f => f[0]).sort();
             console.log(`String set ${index + 1}:`, strings);
         });
 
-        console.log('Possible string sets:', possibleSets); // Log the possible string sets
+        console.log('Possible string sets:', possibleSets);
         return possibleSets;
     }
 
@@ -189,12 +203,10 @@ $(document).ready(function() {
         savedDiagramsContainer.empty();
         const melodyOrder = ["", "R", "b2", "2", "#2", "b3", "3", "4", "#4", "b5", "5", "#5", "b6", "6", "b7", "7"];
 
-        // Add original index to each diagram for correct deletion
         savedDiagrams.forEach((diagram, index) => {
             diagram.originalIndex = index;
         });
 
-        // Sort diagrams by melody note according to the specified order
         savedDiagrams.sort((a, b) => {
             const melodyA = a.melody || '';
             const melodyB = b.melody || '';
@@ -210,7 +222,6 @@ $(document).ready(function() {
                 </div>
             `);
 
-            // Add click handlers
             diagramElement.find(".diagram-melody, .diagram-name").click(function() {
                 generateDiagram(diagram.settings, diagram.chord);
             });
@@ -234,7 +245,6 @@ $(document).ready(function() {
     }
 
     function populateDropdowns() {
-        // Fret number dropdowns
         const dropdowns = ['#string1', '#string2', '#string3', '#string4', '#string5', '#string6'];
         dropdowns.forEach(id => {
             const dropdown = $(id);
@@ -245,7 +255,6 @@ $(document).ready(function() {
             }
         });
 
-        // Scale degrees options
         const textDropdowns = ['#string1-text', '#string2-text', '#string3-text', '#string4-text', '#string5-text', '#string6-text'];
         const textOptions = [
             { value: "", text: "None" },
@@ -274,7 +283,6 @@ $(document).ready(function() {
             });
         });
 
-        // Add visual feedback for dropdown changes
         $('select').change(function() {
             const stringInput = $(this).closest('.string-input');
             stringInput.addClass('modified');
@@ -282,7 +290,77 @@ $(document).ready(function() {
                 stringInput.removeClass('modified');
             }, 300);
         });
+
+        // Add fingering dropdowns
+        const fingeringDropdowns = ['#string1-finger', '#string2-finger', '#string3-finger', 
+                                '#string4-finger', '#string5-finger', '#string6-finger'];
+        const fingeringOptions = [
+            { value: "", text: "None" },
+            { value: "1", text: "1" },
+            { value: "2", text: "2" },
+            { value: "3", text: "3" },
+            { value: "4", text: "4" }
+        ];
+
+        fingeringDropdowns.forEach(id => {
+            const dropdown = $(id);
+            dropdown.empty();
+            fingeringOptions.forEach(option => {
+                dropdown.append(`<option value="${option.value}">${option.text}</option>`);
+            });
+        });
     }
+    $("#settings-form").append(`
+        <div class="diagram-options">
+            <h3>Diagram Options</h3>
+            <div class="display-toggle">
+                <label>
+                    <input type="radio" name="display-mode" value="interval" checked> 
+                    &#x2197;&#xFE0F; Intervals
+                </label>
+                <label>
+                    <input type="radio" name="display-mode" value="fingering"> 
+                    &#x1F91A;&#xFE0F; Fingerings
+                </label>
+            </div>
+            <div class="position-toggle">
+                <label>
+                    <input type="radio" name="position-mode" value="moveable" checked> 
+                    &#x1F69A; Moveable
+                </label>
+                <label>
+                    <input type="radio" name="position-mode" value="open"> 
+                    &#x1F450; Open
+                </label>
+            </div>
+            <div class="orientation-toggle">
+                <label>
+                    <input type="radio" name="orientation-mode" value="horizontal" checked> 
+                    &#x2194;&#xFE0F; Horizontal
+                </label>
+                <label>
+                    <input type="radio" name="orientation-mode" value="vertical"> 
+                    &#x2195;&#xFE0F; Vertical
+                </label>
+            </div>
+        </div>
+    `);
+    
+    $('input[name="orientation-mode"]').change(function() {
+        const orientation = $(this).val();
+        
+        if (currentSettings && $("#result svg").length > 0) {
+            // Update current settings with new orientation
+            currentSettings.orientation = orientation;
+            const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+            const currentChord = savedDiagrams.find(d => d.settings.title === currentSettings.title)?.chord;
+            
+            if (currentChord) {
+                // Pass the orientation to the adjusted settings in generateDiagram
+                generateDiagram({...currentSettings}, currentChord);
+            }
+        }
+    });
 
     function retroactivelyAddMelody() {
         const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
@@ -320,7 +398,6 @@ $(document).ready(function() {
             });
         }
 
-        // Add event listeners to checkboxes
         $("input[name='scale']").change(function() {
             $(this).parent().toggleClass("selected", this.checked);
             filterDiagrams();
@@ -334,7 +411,6 @@ $(document).ready(function() {
 
         const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
         
-        // Show all diagrams if no scales are selected
         const filteredDiagrams = selectedScales.length === 0 ? savedDiagrams : savedDiagrams.filter(diagram => {
             return diagram.scales.some(scale => selectedScales.includes(scale));
         });
@@ -349,7 +425,6 @@ $(document).ready(function() {
         const savedDiagramsContainer = $("#saved-diagrams");
         savedDiagramsContainer.empty();
         
-        // Add headers if they don't exist
         if ($('.saved-diagrams-header').length === 0) {
             savedDiagramsContainer.before(`
                 <div class="saved-diagrams-header">
@@ -369,7 +444,6 @@ $(document).ready(function() {
                 </div>
             `);
 
-            // Add click handlers
             diagramElement.find(".diagram-melody, .diagram-name").click(function() {
                 generateDiagram(diagram.settings, diagram.chord);
             });
@@ -383,11 +457,22 @@ $(document).ready(function() {
         });
     }
 
-    // generate diagram call
+    $('input[name="position-mode"]').change(function() {
+        const allowOpenStrings = $(this).val() === 'open';
+        
+        if (currentSettings && $("#result svg").length > 0) {
+            const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+            const currentChord = savedDiagrams.find(d => d.settings.title === currentSettings.title)?.chord;
+            
+            if (currentChord) {
+                generateDiagram(currentSettings, currentChord);
+            }
+        }
+    });
+    
     $("#settings-form").submit(function(event) {
         event.preventDefault();
 
-        // Validate chord name
         const title = $("#title").val().trim();
         if (title === '' || title === 'Chord Name') {
             alert('Please enter a chord name');
@@ -395,7 +480,6 @@ $(document).ready(function() {
             return false;
         }
 
-        // Check if all frets are 'x'
         const fretValues = [
             $("#string1").val(),
             $("#string2").val(),
@@ -416,23 +500,21 @@ $(document).ready(function() {
         const color = $("#color").val();
         const orientation = $("#orientation").val();
 
-        // Parse fingers input
         const fingers = [
-            [1, $("#string1").val(), $("#string1-text").val()],
-            [2, $("#string2").val(), $("#string2-text").val()],
-            [3, $("#string3").val(), $("#string3-text").val()],
-            [4, $("#string4").val(), $("#string4-text").val()],
-            [5, $("#string5").val(), $("#string5-text").val()],
-            [6, $("#string6").val(), $("#string6-text").val()]
-        ].map(([string, fret, text]) => {
-            const finger = [string, fret === 'x' ? fret : parseInt(fret)];
-            if (text) {
-                finger.push({ text });
+            [1, $("#string1").val(), $("#string1-text").val(), $("#string1-finger").val()],
+            [2, $("#string2").val(), $("#string2-text").val(), $("#string2-finger").val()],
+            [3, $("#string3").val(), $("#string3-text").val(), $("#string3-finger").val()],
+            [4, $("#string4").val(), $("#string4-text").val(), $("#string4-finger").val()],
+            [5, $("#string5").val(), $("#string5-text").val(), $("#string5-finger").val()],
+            [6, $("#string6").val(), $("#string6-text").val(), $("#string6-finger").val()]
+        ].map(([string, fret, text, finger]) => {
+            const fingerData = [string, fret === 'x' ? fret : parseInt(fret)];
+            if (text || finger) {
+                fingerData.push({ text, finger });
             }
-            return finger;
+            return fingerData;
         });
 
-        // Parse barres input
         const barresInput = $("#barres").val() || "";
         const barres = barresInput.split(';').map(barre => {
             const [fromString, toString, fret] = barre.split(',');
@@ -456,11 +538,34 @@ $(document).ready(function() {
             barres
         };
 
-        console.log('Form submission settings:', settings); // Log the settings
-        console.log('Form submission chord:', chord); // Log the chord
+        console.log('Form submission settings:', settings);
+        console.log('Form submission chord:', chord);
 
         generateDiagram(settings, chord);
         saveDiagram(settings, chord);
+    });
+
+    $('input[name="display-mode"]').change(function() {
+        const mode = $(this).val();
+        if (currentSettings && $("#result svg").length > 0) {
+            const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
+            const currentChord = savedDiagrams.find(d => d.settings.title === currentSettings.title)?.chord;
+            
+            if (currentChord) {
+                // Update the displayed text based on mode
+                currentChord.fingers = currentChord.fingers.map(f => {
+                    if (f[2]) {
+                        const newF = [...f];
+                        newF[2] = {
+                            text: mode === 'interval' ? f[2].text : f[2].finger || ''
+                        };
+                        return newF;
+                    }
+                    return f;
+                });
+                generateDiagram(currentSettings, currentChord);
+            }
+        }
     });
 
     displaySavedDiagrams();
@@ -476,12 +581,11 @@ $(document).ready(function() {
         }
     });
 
-    //download json
     document.getElementById('download-saved-diagrams').addEventListener('click', function() {
         const savedDiagrams = JSON.parse(localStorage.getItem(SAVED_DIAGRAMS_KEY)) || [];
         if (savedDiagrams.length > 0) {
             const fileName = prompt('Enter file name:', 'saved-diagrams.json');
-            if (!fileName) return; // User canceled the prompt
+            if (!fileName) return;
             
             const jsonBlob = new Blob([JSON.stringify(savedDiagrams, null, 2)], { type: 'application/json' });
             const jsonUrl = URL.createObjectURL(jsonBlob);
@@ -495,7 +599,7 @@ $(document).ready(function() {
             alert('No saved diagrams to download.');
         }
     });
-    //load json
+
     document.getElementById('load-saved-diagrams').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
@@ -514,7 +618,6 @@ $(document).ready(function() {
         }
     });
 
-    // Initial settings and chord
     const initialSettings = {
         title: 'Major Triad',
         color: '#000000',
@@ -537,10 +640,8 @@ $(document).ready(function() {
         ]
     };
 
-    // Initialize the chord diagram with the initial settings and chord
     generateDiagram(initialSettings, initialChord);
 
-    // Make filter sections collapsible
     $(".filter-header").click(function() {
         $(this).next(".filter-content").slideToggle();
     });
@@ -564,12 +665,11 @@ $(document).ready(function() {
     });
 });
 
-// Function to download all diagrams as SVG and PNG in a zip file
 function downloadAllDiagrams(settings) {
     const zip = new JSZip();
     const svgFolder = zip.folder("SVGs");
     const pngFolder = zip.folder("PNGs");
-    const scale = 6; // Increase scale factor for higher resolution
+    const scale = 6;
 
     $("#result > div").each(function(index, element) {
         const svgElement = $(element).find("svg")[0];
@@ -593,14 +693,13 @@ function downloadAllDiagrams(settings) {
                             saveAs(content, `${settings.title}-chord-diagrams.zip`);
                         });
                     }
-                }, 'image/png', 1.0); // Set quality to maximum
+                }, 'image/png', 1.0);
             };
             img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
         }
     });
 }
 
-// Add event listener for the download all diagrams button
 document.getElementById('download-all-diagrams').addEventListener('click', function() {
     const settings = {
         title: $("#chord-name").text() || "chord"
@@ -608,42 +707,7 @@ document.getElementById('download-all-diagrams').addEventListener('click', funct
     downloadAllDiagrams(settings);
 });
 
-// Add a separate download PNG button under each diagram
-function addDownloadButtons(settings) {
-    $("#result > div").each(function(index, element) {
-        const downloadPngButton = $('<button>Download PNG</button>');
-        downloadPngButton.on('click', function() {
-            const svgElement = $(element).find("svg")[0];
-            if (svgElement) {
-                const svgData = new XMLSerializer().serializeToString(svgElement);
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const img = new Image();
-                const scale = 3; // Increase this value to make the PNG larger
 
-                img.onload = function() {
-                    canvas.width = img.width * scale;
-                    canvas.height = img.height * scale;
-                    ctx.scale(scale, scale);
-                    ctx.drawImage(img, 0, 0);
-                    const pngUrl = canvas.toDataURL('image/png');
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = pngUrl;
-                    downloadLink.download = `${settings.title}-set-${index + 1}.png`;
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                };
-                img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-            } else {
-                alert('No SVG diagram to download.');
-            }
-        });
-        $(element).append(downloadPngButton);
-    });
-}
-
-// Add input event handlers for the title field
 $("#title").on({
     focus: function() {
         if (this.value === 'Chord Name') {
