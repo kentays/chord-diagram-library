@@ -95,8 +95,6 @@ $(document).ready(function() {
             const chart = new svguitar.SVGuitarChord(`#result-${index}`);
             chart.configure(adjustedSettings).chord(set).draw();
         });
-
-        addDownloadButtons(currentSettings);
     }
 
     function determineScales(degrees) {
@@ -669,9 +667,7 @@ $(document).ready(function() {
 
     generateDiagram(initialSettings, initialChord);
 
-    $(".filter-header").click(function() {
-        $(this).next(".filter-content").slideToggle();
-    });
+
 
     $("#load-holdsworth-voicings").click(function() {
         fetch(HOLDSWORTH_DIAGRAMS_URL)
@@ -689,6 +685,19 @@ $(document).ready(function() {
                 console.error('Error loading Holdsworth voicings:', error);
                 alert('Failed to load Holdsworth voicings. Please try again later.');
             });
+    });
+
+    // Fix the collapsible functionality for filter headers
+    $(".filter-header").each(function() {
+        const content = $(this).next(".filter-content");
+        if (content.css("display") === "none") {
+            $(this).addClass("collapsed");
+        }
+    });
+    
+    $(".filter-header").click(function() {
+        $(this).toggleClass("collapsed");
+        $(this).next(".filter-content").slideToggle(200);
     });
 });
 
@@ -765,3 +774,4 @@ function loadHoldsworthVoicings() {
             alert('Failed to load Holdsworth voicings. Please try again later.');
         });
 }
+

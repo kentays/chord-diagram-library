@@ -48,102 +48,304 @@ h1 {
     margin-top: 20px;
 }
 
+/* Make all columns equal size */
 .container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: space-between;
     width: 100%;
-    max-width: 1200px; /* Adjusted to fit a standard laptop window */
+    max-width: 1300px;
     margin-top: 20px;
-    gap: 20px; /* Add space between columns */
+    gap: 15px;
 }
 
 .column {
-    /* Add consistent margin-top to all columns */
     margin-top: 20px;
     background: #fff;
-    padding: 20px;
+    padding: 15px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
-    flex: 1;
-    min-width: 230px;
-    max-width: 600px; /* Limit maximum width to fit a standard laptop window */
-}
-
-form {
+    flex: 1 0 0;
+    /* All columns have the same width */
+    min-width: 275px;
+    max-width: 300px;
+    width: calc(25% - 15px); /* 25% for 4 equal columns, minus gap */
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    margin-bottom: 20px;
-    width:90%; /* Ensure form fits within the column */
+    align-items: center;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
+/* Adjust header alignment to match string inputs */
+.generation-header {
+    display: grid;
+    grid-template-columns: 80px 65px 85px 65px; /* Match string-input columns */
+    gap: 5px;
+    margin-bottom: 6px;
+    font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 10px; /* Add padding to align with string-input */
+}
+
+.generation-header span {
+    text-align: center;
+    font-size: 14px;
     color: #555;
-}
-
-input[type="text"],
-input[type="number"],
-select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+    padding: 6px 0; /* Reduced from 8px to match new select height */
+    background-color: #f5f5f5;
     border-radius: 4px;
-}
-
-button {
-    background-color: #007BFF;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 10px;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-#result {
-    margin-top: 20px;
-    width: 100%;
-    max-width: 600px;
-}
-
-/*3RD COLUMN STYLE*/
-#scale-filters {
-    /* Remove margin-top to align with other columns */
-    width: 100%;
-    max-width: 250px;
+    border: 1px solid #eee;
+    height: 32px; /* Fixed height to match select elements */
     display: flex;
-    flex-direction: column; /* Stack filter sections vertically */
-    gap: 10px; /* Add space between filter sections */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Update the grid layout for the string inputs */
+.string-input {
+    display: grid;
+    grid-template-columns: 80px 65px 85px 65px; /* Match header columns */
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 4px; /* Compact spacing between rows */
+    width: 100%;
+    box-sizing: border-box;
+    height: 38px; /* Fixed height for consistency */
+    padding-left: 10px; /* Add padding to align with headers */
+}
+
+/* Fix spacing and alignment for string labels */
+.string-label {
+    display: flex; /* Use flexbox for better alignment */
+    align-items: center; /* Vertically center the text */
+    justify-content: flex-start; /* Align text to the left */
+    margin: 0; /* Remove any default margin */
+    padding: 0; /* Remove any default padding */
+    font-size: 14px; /* Match the font size of other elements */
+    color: #555; /* Consistent text color */
+    line-height: 1; /* Remove extra line height */
+    width: 80px; /* Ensure it fits within the first column */
+    box-sizing: border-box; /* Include padding and border in width */
+    height: 100%; /* Ensure it spans the full height of the row */
+}
+
+/* Adjust select sizing to match header and reduce overall height */
+.string-input select {
+    width: 100%;
+    padding: 6px 4px; /* Reduced padding for compactness */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    box-sizing: border-box;
+    font-size: 14px;
+    height: 32px; /* Fixed height for consistency */
+}
+
+/* Ensure specific elements are in the correct columns */
+.string-input .string-label {
+    grid-column: 1;
+}
+
+.string-input select:nth-child(2) {
+    grid-column: 2;
+}
+
+.string-input select:nth-child(3) {
+    grid-column: 3;
+}
+
+.string-input select:nth-child(4) {
+    grid-column: 4;
+}
+
+/* Add visual cues to help users understand the grid */
+.string-input:nth-child(odd) {
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+/* Ensure rows are aligned */
+.string-input:first-of-type {
+    margin-top: 0;
+}
+
+/* Responsive adjustments for generation header and string inputs */
+@media (max-width: 768px) {
+    .column {    /* ...existing code... */
+    
+    /* Adjust header alignment to match string inputs */
+    .generation-header {
+        display: grid;
+        grid-template-columns: 80px 65px 85px 65px; /* Match string-input columns */
+        gap: 5px;
+        margin-bottom: 6px;
+        font-weight: bold;
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 10px; /* Add padding to align with string-input */
+    }
+    
+    /* Update the grid layout for the string inputs */
+    .string-input {
+        display: grid;
+        grid-template-columns: 80px 65px 85px 65px; /* Match header columns */
+        gap: 5px;
+        align-items: center;
+        margin-bottom: 4px; /* Compact spacing between rows */
+        width: 100%;
+        box-sizing: border-box;
+        height: 38px; /* Fixed height for consistency */
+        padding-left: 10px; /* Add padding to align with headers */
+    }
+    
+    /* Fix spacing and alignment for string labels */
+    .string-label {
+        display: flex; /* Use flexbox for better alignment */
+        align-items: center; /* Vertically center the text */
+        justify-content: flex-start; /* Align text to the left */
+        margin: 0; /* Remove any default margin */
+        padding: 0; /* Remove any default padding */
+        font-size: 14px; /* Match the font size of other elements */
+        color: #555; /* Consistent text color */
+        line-height: 1; /* Remove extra line height */
+        width: 80px; /* Ensure it fits within the first column */
+        box-sizing: border-box; /* Include padding and border in width */
+        height: 100%; /* Ensure it spans the full height of the row */
+    }
+    
+    /* Adjust select sizing to match header and reduce overall height */
+    .string-input select {
+        width: 100%;
+        padding: 6px 4px; /* Reduced padding for compactness */
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        box-sizing: border-box;
+        font-size: 14px;
+        height: 32px; /* Fixed height for consistency */
+    }
+    
+    /* Ensure specific elements are in the correct columns */
+    .string-input .string-label {
+        grid-column: 1;
+    }
+    
+    .string-input select:nth-child(2) {
+        grid-column: 2;
+    }
+    
+    .string-input select:nth-child(3) {
+        grid-column: 3;
+    }
+    
+    .string-input select:nth-child(4) {
+        grid-column: 4;
+    }
+    
+    /* Add visual cues to help users understand the grid */
+    .string-input:nth-child(odd) {
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+    
+    /* Ensure rows are aligned */
+    .string-input:first-of-type {
+        margin-top: 0;
+    }
+    
+    /* Responsive adjustments for generation header and string inputs */
+    @media (max-width: 768px) {
+        .column {
+            width: 100%;
+            min-width: 100%;
+            max-width: 100%;
+        }
+        
+        .generation-header {
+            padding-left: 5px; /* Adjust padding for smaller screens */
+        }
+        
+        .string-input {
+            padding-left: 5px; /* Adjust padding for smaller screens */
+        }
+    }
+    /* ...existing code... */
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+    
+    .generation-header {
+        padding-left: 5px; /* Adjust padding for smaller screens */
+    }
+    
+    .string-input {
+        padding-left: 5px; /* Adjust padding for smaller screens */
+    }
+}
+
+#diagram-generation {
+    flex: 1.2;
+    min-width: 300px; /* Explicit min-width for this column */
+    max-width: 350px; /* Limited maximum width */
+}
+
+#diagram-output {
+    flex: 1;
+    min-width: 250px;
+    max-width: 300px;
+}
+
+#scale-filters {
+    flex: 0.8;
+    min-width: 220px;
+    max-width: 280px; /* Slightly increased to fit content better */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    align-items: stretch; /* Ensure children stretch to full width */
 }
 
 .filter-section {
-    background: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    overflow: hidden; /* Prevent content overflow */
 }
 
 .filter-header {
     cursor: pointer;
     margin: 0;
+    font-size: 16px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #eee;
+    position: relative;
 }
 
-/* Replace the existing .filter-content style */
+.filter-header::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    transition: transform 0.3s;
+}
+
+.filter-header.collapsed::after {
+    transform: rotate(-90deg);
+}
+
 .filter-content {
-    display: none; /* Hidden by default for non-major scales */
-    padding-top: 10px;
+    padding: 10px;
+    display: none; /* Hidden by default */
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Add new style for major scale filters */
 #major-modes {
     display: block; /* Show major scales by default */
 }
@@ -158,24 +360,28 @@ button:hover {
 }
 
 #saved-diagrams-container {
-    width: 100%;
-    max-width: 600px;
+    flex: 1;
+    min-width: 280px;
+    max-width: 300px;
 }
 
 .saved-diagrams-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 80px;
+    grid-template-columns: 1fr 1fr 80px; /* Match saved-diagram-row */
     gap: 10px;
-    padding: 10px;
+    padding: 8px 10px; /* Match the padding in rows */
     background-color: #f5f5f5;
     border-radius: 4px;
     margin-bottom: 10px;
+    border: 1px solid #eee;
 }
 
 .header-cell {
     font-weight: bold;
-    color: #333;
+    color: #555;
     text-align: center;
+    font-size: 14px;
+    padding: 5px;
 }
 
 /* Style for each saved diagram row */
@@ -189,6 +395,11 @@ button:hover {
     border-radius: 4px;
     margin-bottom: 5px;
     background: white;
+    transition: background-color 0.2s;
+}
+
+#saved-diagrams > div:hover {
+    background-color: #f5f5f5;
 }
 
 /* Style for text content in each column */
@@ -197,7 +408,13 @@ button:hover {
     padding: 5px;
 }
 
-/* Style for delete button column */
+#saved-diagrams > div > span::before {
+    content: attr(data-label);
+    font-weight: bold;
+    margin-right: 5px;
+    color: #666;
+}
+
 #saved-diagrams > div > button {
     padding: 5px 10px;
     background-color: #ff4d4d;
@@ -217,11 +434,21 @@ button:hover {
     border-radius: 4px;
     cursor: pointer;
     user-select: none;
-    padding: 5px;
-    margin-bottom: 5px;
+    padding: 8px 5px;
+    margin-bottom: 8px;
     border: 1px solid #ccc;
     text-align: center;
-    position: relative;  /* Add this */
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: block; /* Ensure it's a block element */
+    overflow: hidden; /* Prevent text overflow */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    white-space: nowrap; /* Keep text on one line */
+}
+
+.mode-option:last-child {
+    margin-bottom: 0;
 }
 
 .mode-option input[type="checkbox"] {
@@ -237,61 +464,11 @@ button:hover {
     background-color: #e0ffe0;
 }
 
-/* Update the grid layout for the string inputs */
-.string-input {
-    display: grid;
-    grid-template-columns: 80px 70px 90px 70px;  /* Adjusted column widths */
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.string-input.modified {
-    background-color: #e8f5e9;
-    transform: scale(1.02);
-}
-
-.string-label {
-    font-weight: bold;
-    margin-right: 10px; /* Add space between label and dropdowns */
-    color: #333;
-    grid-column: 1;
-}
-
-select {
-    width: 100%;
-    padding: 4px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-}
-
-select:last-child {
-    margin-right: 0; /* Remove margin from the last dropdown */
-}
-
-select:hover {
-    border-color: #999;
-}
-
-.string-input select:nth-child(2) {
-    grid-column: 2;
-}
-
-string-input select:nth-child(3) {
-    grid-column: 3;
-}
-
-/* Optional: Make the dropdowns a bit larger for better usability */
-.string-input select {
-    padding: 10px;
-}
-
 .settings-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .form-group {
@@ -348,9 +525,30 @@ input[type="checkbox"] {
     .settings-grid {
         grid-template-columns: 1fr;
     }
+    
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .column {
+        width: 100%;
+        min-width: 100%; /* Make column take full width on mobile */
+        max-width: 100%;
+    }
+    
+    /* Adjust string input on mobile */
+    .string-input {
+        grid-template-columns: 70px 65px 85px 65px; /* Slightly smaller on mobile */
+        gap: 3px; /* Reduced gap on mobile */
+    }
+    
+    .generation-header {
+        display: none; /* Hide on mobile, use inline labels instead */
+    }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 280px) {
     .form-grid {
         grid-template-columns: 1fr; /* Keep single column on mobile */
     }
@@ -366,11 +564,19 @@ input[type="checkbox"] {
     border-radius: 4px;
     margin-bottom: 5px;
     background: white;
+    transition: background-color 0.2s;
 }
 
 .saved-diagram-row span {
     text-align: center;
     cursor: pointer;
+}
+
+.saved-diagram-row span::before {
+    content: attr(data-label);
+    font-weight: bold;
+    margin-right: 5px;
+    color: #666;
 }
 
 .saved-diagram-row .diagram-melody,
@@ -402,15 +608,39 @@ input[type="checkbox"] {
 /* Adjust the generation header to match */
 .generation-header {
     display: grid;
-    grid-template-columns: 80px 70px 90px 70px;  /* Match string-input columns */
-    gap: 10px;
-    margin-bottom: 10px;
+    grid-template-columns: 80px 65px 85px 65px; /* Exactly match string-input columns */
+    gap: 5px; /* Match the gap in string-input */
+    margin-bottom: 6px; /* Reduced from 10px */
     font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 2px; /* Small padding for alignment */
+}
+
+.generation-header span {
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+    padding: 4px 0;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    border: 1px solid #eee;
 }
 
 .chord-form-container {
-    min-width: 360px;  /* Minimum width to fit all columns */
-    max-width: 400px;  /* Maximum width for readability */
+    min-width: 260px;  /* Reduced from 280px */
+    max-width: 100%;  /* Changed from 300px to be fully responsive */
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Reduce gap between form elements */
+}
+
+/* Form element adjustments */
+#settings-form {
+    margin-top: 0;
+    padding-top: 0;
 }
 
 .buttons-container {
