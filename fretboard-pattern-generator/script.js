@@ -27,7 +27,210 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const form = document.getElementById('pattern-form');
     const resultDiv = document.getElementById('result');
+
+    const SEVENTH_CHORD_TYPES = {
+        'maj7': {
+            intervals: [0, 4, 7, 11],
+            name: 'Major 7'
+        },
+        '7': {
+            intervals: [0, 4, 7, 10],
+            name: 'Dominant 7'
+        },
+        'min7': {
+            intervals: [0, 3, 7, 10],
+            name: 'Minor 7'
+        },
+        'm7b5': {
+            intervals: [0, 3, 6, 10],
+            name: 'Half Diminished'
+        },
+        'dim7': {
+            intervals: [0, 3, 6, 9],
+            name: 'Diminished 7'
+        },
+        'mM7': {
+            intervals: [0, 3, 7, 11],
+            name: 'Minor Major 7'
+        }
+    };
+
+        // First, correct the getIntervalName function
+    function getIntervalName(interval) {
+        const intervalNames = {
+            0: 'R',
+            3: 'b3',
+            4: '3',
+            6: 'b5',
+            7: '5',
+            9: '6', 
+            10: 'b7',
+            11: '7'
+        };
+        return intervalNames[interval] || '';
+    }
+    function generateArpeggioPositions(quality, inversion = 0) {
+        const pattern = SEVENTH_CHORD_TYPES[quality];
+        if (!pattern) return null;
     
+        const stringOffsets = {
+            6: 0,  // Low E
+            5: 5,  // A
+            4: 10, // D
+            3: 15, // G
+            2: 19, // B
+            1: 24  // E
+        };
+    
+        // Rotate intervals based on inversion
+        let intervals = [...pattern.intervals];
+        for (let i = 0; i < inversion; i++) {
+            const first = intervals.shift();
+            intervals.push(first + 12);
+        }
+    
+        let positions = [];
+        const startFret = 1;
+    
+        // Calculate positions for each pair of strings
+        // First octave (strings 6 and 5)
+        positions.push(
+            // String 6 (Low E)
+            {
+                string: 6,
+                fret: startFret,
+                text: getIntervalName(intervals[0] % 12),
+                color: getIntervalName(intervals[0] % 12) === 'R' ? 'red' : null
+            },
+            {
+                string: 6,
+                fret: startFret + (intervals[1] - intervals[0]),
+                text: getIntervalName(intervals[1] % 12),
+                color: getIntervalName(intervals[1] % 12) === 'R' ? 'red' : null
+            },
+            // String 5 (A)
+            {
+                string: 5,
+                fret: startFret + ((intervals[2] - intervals[0]) - 5),
+                text: getIntervalName(intervals[2] % 12),
+                color: getIntervalName(intervals[2] % 12) === 'R' ? 'red' : null
+            },
+            {
+                string: 5,
+                fret: startFret + ((intervals[3] - intervals[0]) - 5),
+                text: getIntervalName(intervals[3] % 12),
+                color: getIntervalName(intervals[3] % 12) === 'R' ? 'red' : null
+            }
+        );
+    
+        // Second octave (strings 4 and 3)
+        positions.push(
+            // String 4 (D)
+            {
+                string: 4,
+                fret: startFret + ((intervals[0] - intervals[0]) + 2),
+                text: getIntervalName(intervals[0] % 12),
+                color: getIntervalName(intervals[0] % 12) === 'R' ? 'red' : null
+            },
+            {
+                string: 4,
+                fret: startFret + ((intervals[1] - intervals[0]) + 2),
+                text: getIntervalName(intervals[1] % 12),
+                color: getIntervalName(intervals[1] % 12) === 'R' ? 'red' : null
+            },
+            // String 3 (G)
+            {
+                string: 3,
+                fret: startFret + ((intervals[2] - intervals[0]) - 3),
+                text: getIntervalName(intervals[2] % 12),
+                color: getIntervalName(intervals[2] % 12) === 'R' ? 'red' : null
+            },
+            {
+                string: 3,
+                fret: startFret + ((intervals[3] - intervals[0]) - 3),
+                text: getIntervalName(intervals[3] % 12),
+                color: getIntervalName(intervals[3] % 12) === 'R' ? 'red' : null
+            }
+        );
+    
+        // Third octave (strings 2 and 1)
+        positions.push(
+            // String 2 (B)
+            {
+                string: 2,
+                fret: startFret + ((intervals[0] - intervals[0]) + 5),
+                text: getIntervalName(intervals[0] % 12),
+                color: getIntervalName(intervals[0] % 12) === 'R' ? 'red' : null
+            },
+            {
+                string: 2,
+                fret: startFret + ((intervals[1] - intervals[0]) + 5),
+                text: getIntervalName(intervals[1] % 12),
+                color: getIntervalName(intervals[1] % 12) === 'R' ? 'red' : null
+            },
+            // String 1 (High E)
+            {
+                string: 1,
+                fret: startFret + ((intervals[2] - intervals[0])),
+                text: getIntervalName(intervals[2] % 12),
+                color: getIntervalName(intervals[2] % 12) === 'R' ? 'red' : null
+            },
+            {
+                string: 1,
+                fret: startFret + ((intervals[3] - intervals[0])),
+                text: getIntervalName(intervals[3] % 12),
+                color: getIntervalName(intervals[3] % 12) === 'R' ? 'red' : null
+            }
+        );
+  
+        // Convert positions to fretboard pattern format
+        const fretsByString = Array(6).fill().map(() => []);
+        positions.forEach(pos => {
+            fretsByString[pos.string - 1].push({
+                fret: pos.fret,
+                text: pos.text,
+                color: pos.color
+            });
+        });
+    
+        // Update form inputs and generate diagram
+        document.getElementById('title').value = `${pattern.name} Arpeggio${inversion > 0 ? ` (${inversion}${getInversionSuffix(inversion)} inv)` : ''}`;
+        updateFretboardInputs(fretsByString);
+        updateDiagram();
+    }
+    
+    function updateFretboardInputs(fretsByString) {
+        fretsByString.forEach((stringFrets, index) => {
+            const input = document.querySelector(`input[name="string${index + 1}"]`);
+            if (input) {
+                const fretNotation = stringFrets.map(pos => {
+                    let notation = `${pos.fret}`;
+                    if (pos.color) notation += `:${pos.color}`;
+                    if (pos.text) notation += `::${pos.text}`;
+                    return notation;
+                }).join(', ');
+                input.value = fretNotation;
+            }
+        });
+    }
+    // Helper function for inversion suffix
+    function getInversionSuffix(inversion) {
+        const suffixes = ['th', 'st', 'nd', 'rd'];
+        return suffixes[inversion] || 'th';
+    }
+    // Update the click handler to just call this function
+    $('#generate-arpeggio').click(function() {
+        const quality = $('#arpeggio-quality').val();
+        const inversion = parseInt($('#arpeggio-inversion').val()) || 0;
+    
+        if (!quality) {
+            alert('Please select a chord quality');
+            return;
+        }
+    
+        generateArpeggioPositions(quality, inversion);
+    });
+
     // Default pattern data
     const defaultPattern = {
         title: "E Major Scale - Three Notes Per String",

@@ -66,7 +66,29 @@
                 <button id="download-png" class="action-button">Download PNG</button>
             </div>
         </div>
-        
+
+        <div class="arpeggio-generator">
+            <h4>7th Arpeggio Generator</h4>
+            <div class="arpeggio-controls">
+                <select id="arpeggio-quality" class="arpeggio-select">
+                    <option value="">Select Quality</option>
+                    <option value="maj7">Major 7</option>
+                    <option value="7">Dominant 7</option>
+                    <option value="min7">Minor 7</option>
+                    <option value="m7b5">Half Diminished</option>
+                    <option value="dim7">Diminished 7</option>
+                    <option value="mM7">Minor Major 7</option>
+                </select>
+                <select id="arpeggio-inversion" class="arpeggio-select">
+                    <option value="0">Root Position</option>
+                    <option value="1">1st Inversion (3rd)</option>
+                    <option value="2">2nd Inversion (5th)</option>
+                    <option value="3">3rd Inversion (7th)</option>
+                </select>
+                <button type="button" id="generate-arpeggio">Generate Arpeggio</button>
+            </div>
+        </div>
+
         <div class="column patterns-library">
             <h3>Pattern Library</h3>
             

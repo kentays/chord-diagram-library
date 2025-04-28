@@ -37,6 +37,33 @@ $(document).ready(function() {
         "Locrian bb7": ["R", "b2", "b3", "4", "b5", "b6", "bb7"],
     };
 
+    const SEVENTH_CHORD_TYPES = {
+        'maj7': {
+            intervals: [0, 4, 7, 11],
+            name: 'Major 7'
+        },
+        '7': {
+            intervals: [0, 4, 7, 10],
+            name: 'Dominant 7'
+        },
+        'min7': {
+            intervals: [0, 3, 7, 10],
+            name: 'Minor 7'
+        },
+        'm7b5': {
+            intervals: [0, 3, 6, 10],
+            name: 'Half Diminished'
+        },
+        'dim7': {
+            intervals: [0, 3, 6, 9],
+            name: 'Diminished 7'
+        },
+        'mM7': {
+            intervals: [0, 3, 7, 11],
+            name: 'Minor Major 7'
+        }
+    };
+
     const chart = new svguitar.SVGuitarChord("#result");
 
     let currentSettings = {}; // Global variable to store the current settings
